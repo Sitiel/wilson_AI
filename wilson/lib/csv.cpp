@@ -29,12 +29,14 @@ void CSVReader::read(std::vector<std::vector<double>> &content) {
         this->errorOpeningFile();
     }
     
+    getline(csv, line);
     while (getline(csv, line))
     {
         istringstream iss(line);
         string value;
         vector<double> line;
-        while (getline(iss, value, ';')){
+        getline(iss, value, ',');
+        while (getline(iss, value, ',')){
             line.push_back(stod(value));
         }
         content.push_back(line);
@@ -102,7 +104,7 @@ void CSVReader::write(vector<vector<string>> &content, string name){
     }
 
     for(unsigned int i = 0; i <content.size();i++){
-        for(unsigned int j = 0; j<content[i].size();i++){
+        for(unsigned int j = 0; j<content[i].size();j++){
             csv << content[i][j];
             if(j != (content[i].size())-1){
                 csv << ";";
@@ -115,7 +117,7 @@ void CSVReader::write(vector<vector<string>> &content, string name){
     csv.close();
 }
 
-void CSVReader::write(vector<vector<Variable*>> &content, string name){
+void CSVReader::write(vector<vector<Variable>> &content, string name){
     ofstream csv;
     string chaine = "";
     if(!name.empty()){
@@ -138,7 +140,7 @@ void CSVReader::write(vector<vector<Variable*>> &content, string name){
         }
         csv.flush();
         for(unsigned int j = 0; j<content[i].size();j++){
-            csv << content[i][j]->value;
+            csv << content[i][j].value;
             csv.flush();
             if(j != (content[i].size())-1){
                 csv << ";";
