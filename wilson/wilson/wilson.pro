@@ -3,4 +3,14 @@ CONFIG += console c++11
 CONFIG -= app_bundle
 CONFIG -= qt
 
-SOURCES += main.cpp
+SOURCES += \
+    ../lib/csv.cpp \
+    ../lib/variable.cpp \
+    ../recuitSimule/main.cpp \
+    ../evaluateur/evaluateur.cpp
+
+HEADERS += \
+    ../lib/csv.hpp \
+    ../lib/environnement.hpp \
+    ../lib/variable.hpp \
+    ../evaluateur/evaluateur.hpp
