@@ -119,7 +119,6 @@ void CSVReader::write(vector<vector<string>> &content, string name){
 
 void CSVReader::write(vector<vector<Variable>> &content, string name){
     ofstream csv;
-    string chaine = "";
     if(!name.empty()){
         csv.open(name,ofstream::app);
     }else{
@@ -132,6 +131,9 @@ void CSVReader::write(vector<vector<Variable>> &content, string name){
         csv.open(newname,ofstream::app);
     }
 
+
+    csv << "Name;Method;Value1;Value2;Value3\n";
+    csv.flush();
     for(unsigned int i = 0; i <content.size();i++){
         if(i+1<10){
             csv << "A0"<< i+1 << ";";
@@ -140,7 +142,15 @@ void CSVReader::write(vector<vector<Variable>> &content, string name){
         }
         csv.flush();
         for(unsigned int j = 0; j<content[i].size();j++){
-            csv << content[i][j].value;
+            if(j == 0){
+                if(content[i][j].value == 0){
+                    csv << "ControlPoint";
+                }else{
+                    csv << "Replenishement";
+                }
+            }else{
+                csv << content[i][j].value;
+            }
             csv.flush();
             if(j != (content[i].size())-1){
                 csv << ";";

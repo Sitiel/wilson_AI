@@ -36,7 +36,7 @@ double recuit(Evaluateur* eva, vector<Variable>& variables){
     double temp = getFirstTemp(10000,0.6);
     int indice = 0;
 
-    while(i <= 50000 && j<50000 && DiffMin != 0){
+    while(i <= 10 && j<50000 && DiffMin != 0){
         Diff = 0;
         //$K$2*PUISSANCE(A2;$K$3)+$L$2*PUISSANCE(B2;$L$3)+$M$2*PUISSANCE(C2;$M$3)+$N$2*PUISSANCE(D2;$N$3)+$O$2*PUISSANCE(E2;$O$3)
         Diff = eva->evaluate(variables);
@@ -45,7 +45,7 @@ double recuit(Evaluateur* eva, vector<Variable>& variables){
             if(bestDiff>Diff || bestDiff == -1){
                 bestDiff = Diff;
                 vBest = variables;
-                cout << bestDiff << " | Temperature : " << temp <<" | " << i<<endl;
+                //cout << bestDiff << " | Temperature : " << temp <<" | " << i<<endl;
             }
             DiffMin = Diff;
             //cout << bestDiff << " | " << DiffMin << " Temperature : " << temp <<" | " << i<<endl;
