@@ -26,7 +26,7 @@ Variable::Variable(double lowerBound, double upperBound, double value) {
 void Variable::randomise() {
     previous = this->value;
     if(this->entier){
-        this->value = ((int)(rand())/ RAND_MAX ) * (this->upperBound - lowerBound) + lowerBound;
+        this->value = (int)(((double)(rand())/ RAND_MAX ) * (this->upperBound - lowerBound) + lowerBound);
     }else{
         this->value = ((double)(rand())/ RAND_MAX ) * (this->upperBound - lowerBound) + lowerBound;
     }
@@ -53,7 +53,7 @@ void Variable::gaussianRandomise(double k) {
         do{
             generated = distribution(generator);
         }while(generated < lowerBound || generated > upperBound);
-
+        
         this->value = generated;
     }
 

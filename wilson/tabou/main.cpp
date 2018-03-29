@@ -6,34 +6,34 @@
 using namespace std;
 
 
-double tabou(Evaluateur* env, vector<Variable*>& variables){
+double tabou(Evaluateur* env, vector<Variable>& variables){
     
     double current = -1;
     vector<vector<Variable>> ltabou;
     int ltabouCmp = 0;
     double best = -1;
     int i = 0, j = 0;
+    vector<Variable> bVariables;
     double newCurrent;
     while(i < 100){
         i++;
-        
         j = 0;
         newCurrent = -1;
         
         while(j < 1000){
             
             int r = rand()%variables.size();
-            variables[r]->randomise();
+            variables[r].randomise();
             
             
             bool found = false;
             for(int k = 0 ; k < ltabou.size() ; k++){
                 double diff = 0;
                 for(int q = 0 ; q < ltabou[k].size() ; q++){
-                    diff += variables[q]->compare(ltabou[k][q]);
+                    diff += variables[q].compare(ltabou[k][q]);
                 }
                 diff /= ltabou[k].size();
-                if(diff < 0.01){
+                if(diff < 0.001){
                     found = true;
                     break;
                 }
@@ -46,7 +46,7 @@ double tabou(Evaluateur* env, vector<Variable*>& variables){
                 newCurrent = tmpEval;
             }
             else{
-                variables[r]->revert();
+                variables[r].revert();
             }
             j++;
         }
@@ -54,28 +54,35 @@ double tabou(Evaluateur* env, vector<Variable*>& variables){
         if(ltabou.size() < 10){
             vector<Variable> v;
             for(int i = 0 ; i < variables.size() ; i++){
-                v.push_back(*variables[i]);
+                v.push_back(variables[i]);
             }
-            ltabou.push_back(v);
+            //ltabou.push_back(v);
         }
         else{
             vector<Variable> v;
             for(int i = 0 ; i < variables.size() ; i++){
-                v.push_back(*variables[i]);
+                v.push_back(variables[i]);
             }
-            ltabou[ltabouCmp] = v;
+            //ltabou[ltabouCmp] = v;
         }
         
         ltabouCmp++;
         if(ltabouCmp > 10)
             ltabouCmp = 0;
         
-       
-        
         current = newCurrent;
-        if(current < best || best == -1)
+        if(current < best || best == -1){
             best = current;
+            bVariables = variables;
+        }
     }
+    
+    for(int i = 0 ; i < bVariables.size() ; i++){
+        cout << bVariables[i].value << " ";
+    }
+    cout << endl;
+    
+    
     return best;
 }
 
@@ -93,7 +100,7 @@ int main(int argc, const char * argv[]) {
         cout << endl;
     }
     */
-    srand(5);
+    srand(time(NULL));
 
     vector<double> content;
 
@@ -111,15 +118,16 @@ int main(int argc, const char * argv[]) {
     content.push_back(100);
 
     vector<Variable> variables;
-    variables.push_back(Variable(1,2,1));
+    variables.push_back(Variable(0,1.9999999,1));
     variables.push_back(Variable(1,10000,1771));
     variables.push_back(Variable(1,10000,8347)); 
     
     Evaluateur* env = new Evaluateur(content);
-
-    cout << "Cout totale: " <<  env->evaluate(variables) << endl;
     
-    //cout << "Environnement value : " << env->evaluate(variables) << endl;
+    cout << "Tabou : ";
+    
+    cout << " value : " << tabou(env, variables);
+    cout << endl;
     
     return 0;
 }
