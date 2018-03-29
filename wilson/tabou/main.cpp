@@ -1,12 +1,12 @@
 #include "../performances.hpp"
 #include "../lib/csv.hpp"
-#include "../lib/environnement.hpp"
+#include "../evaluateur/evaluateur.hpp"
 
 
 using namespace std;
 
 
-double tabou(Environnement* env, vector<Variable*>& variables){
+double tabou(Evaluateur* env, vector<Variable*>& variables){
     
     double current = -1;
     vector<vector<Variable>> ltabou;
@@ -105,7 +105,7 @@ int main(int argc, const char * argv[]) {
         variables.push_back(new Variable(1, 10));
     }
     
-    Environnement* env = new Environnement(content);
+    Evaluateur* env = new Evaluateur(content);
     
     //cout << "Environnement value : " << env->evaluate(variables) << endl;
     

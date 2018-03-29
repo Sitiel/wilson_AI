@@ -6,16 +6,16 @@
 //  Copyright © 2018 Valérian Acier. All rights reserved.
 //
 
-#include "environnement.hpp"
+#include "evaluateur.hpp"
 #include <cmath>
 
 using namespace std;
 
-Environnement::Environnement(vector<vector<double>> &constants){
+Evaluateur::Evaluateur(vector<vector<double>> &constants){
     this->constants = constants;
 }
 
-double Environnement::evaluate(vector<Variable*>& variables){
+double Evaluateur::evaluate(std::vector<Variable*>& variables) {
     double totalDelta = 0;
     
     for(int i = 0 ; i < constants.size() ; i++)
@@ -40,7 +40,7 @@ double Environnement::evaluate(vector<Variable*>& variables){
 }
 
 
-double Environnement::evaluate(vector<Variable>& variables){
+double Evaluateur::evaluate(vector<Variable>& variables){
     double totalDelta = 0;
     
     for(int i = 0 ; i < constants.size() ; i++)

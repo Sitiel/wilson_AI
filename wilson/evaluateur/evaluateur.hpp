@@ -9,13 +9,13 @@
 #ifndef Environnement_hpp
 #define Environnement_hpp
 
-#include "variable.hpp"
+#include "../lib/variable.hpp"
 #include <iostream>
 #include <vector>
 
-class Environnement {
+class Evaluateur {
 public:
-    Environnement(std::vector<std::vector<double>> &constants);
+    Evaluateur(std::vector<std::vector<double>> &constants);
     
     double evaluate(std::vector<Variable*>& variables);
     double evaluate(std::vector<Variable>& variables);
@@ -24,4 +24,4 @@ private:
     std::vector<std::vector<double>> constants;
 };
 
-#endif /* Environnement_hpp */
+#endif /* Evaluateur */
