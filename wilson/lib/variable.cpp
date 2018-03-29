@@ -14,17 +14,22 @@
 
 using namespace std;
 
-Variable::Variable(double lowerBound, double upperBound, double value) { 
+Variable::Variable(double lowerBound, double upperBound, double value) {
     this->lowerBound = lowerBound;
     this->upperBound = upperBound;
     this->value = value;
+    this->entier = false;
     if(value == -1)
         randomise();
 }
 
 void Variable::randomise() {
     previous = this->value;
-    this->value = ((double)(rand())/ RAND_MAX ) * (this->upperBound - lowerBound) + lowerBound;
+    if(this->entier){
+        this->value = ((int)(rand())/ RAND_MAX ) * (this->upperBound - lowerBound) + lowerBound;
+    }else{
+        this->value = ((double)(rand())/ RAND_MAX ) * (this->upperBound - lowerBound) + lowerBound;
+    }
 }
 
 void Variable::revert(){
@@ -49,5 +54,9 @@ double Variable::compare(Variable &b) {
 
 double Variable::compare(Variable *b) { 
     return  (abs(value - b->value) - lowerBound) / (upperBound - lowerBound);
+}
+
+void Variable::addEntierConstraint(){
+    this->entier = true;
 }
 

@@ -15,6 +15,7 @@ public:
     void randomise();
     void gaussianRandomise(double k);
     void revert();
+    void addEntierConstraint();
     double compare(Variable &b);
     double compare(Variable *b);
     double value;
@@ -22,6 +23,7 @@ public:
     
 private:
     double previous;
+    bool entier;
 };
 
 
