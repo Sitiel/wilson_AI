@@ -83,9 +83,8 @@ double tabou(Evaluateur* env, vector<Variable*>& variables){
 int main(int argc, const char * argv[]) {
     
     
-    CSVReader csv("FNL.csv");
-    vector<vector<double>> content;
-    csv.read(content);
+    //CSVReader csv("FNL.csv");
+    //csv.read(content);
     /*
     for(int i = 0 ; i < content.size() ; i++){
         for (int j = 0 ; j < content[i].size() ; j++){
@@ -95,21 +94,32 @@ int main(int argc, const char * argv[]) {
     }
     */
     srand(5);
-    
-    vector<Variable*> variables;
-    for(int i = 0 ; i < 5 ; i++){
-        variables.push_back(new Variable(-100, 100));
-    }
-    
-    for(int i = 0 ; i < 5 ; i++){
-        variables.push_back(new Variable(1, 10));
-    }
+
+    vector<double> content;
+
+    content.push_back(0);
+    content.push_back(21);
+    content.push_back(36279);
+    content.push_back(524);
+    content.push_back(1.4);
+    content.push_back(30);
+    content.push_back(1);
+    content.push_back(0.3);
+    content.push_back(0.2);
+    content.push_back(0.4);
+    content.push_back(400);
+    content.push_back(100);
+
+    vector<Variable> variables;
+    variables.push_back(Variable(1,2,1));
+    variables.push_back(Variable(1,10000,1771));
+    variables.push_back(Variable(1,10000,8347)); 
     
     Evaluateur* env = new Evaluateur(content);
+
+    cout << "Cout totale: " <<  env->evaluate(variables) << endl;
     
     //cout << "Environnement value : " << env->evaluate(variables) << endl;
-    
-    cout << "Tabou found : " << tabou(env, variables) << endl;
     
     return 0;
 }
