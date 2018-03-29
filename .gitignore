@@ -1,3 +1,5 @@
 wilson/.vscode/
 compileAndExec.sh
 main.exe
+DerivedData/
+wilson.xcodeproj/
