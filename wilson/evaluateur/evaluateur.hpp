@@ -9,19 +9,18 @@
 #ifndef Environnement_hpp
 #define Environnement_hpp
 
-#define NAME 0
-#define DELAY_LIVRAISON 1
-#define STOCK 2
-#define INITIAL_DEMANDE 3
-#define INCREASE 4
-#define VARIATION 5
-#define MONTH_SAISONALITY 6
-#define PERCENT_OF_SAISONALITY 7
-#define OWNERSHIP_RATE 8
-#define OUT_STOCK_PERCENT 9
-#define ORDER_COST 10
-#define PURCHASE_PRICE 11
-#define VIRTUAL_STOCK 12
+#define DELAY_LIVRAISON 0
+#define STOCK 1
+#define INITIAL_DEMANDE 2
+#define INCREASE 3
+#define VARIATION 4
+#define MONTH_SAISONALITY 5
+#define PERCENT_OF_SAISONALITY 6
+#define OWNERSHIP_RATE 7
+#define OUT_STOCK_PERCENT 8
+#define ORDER_COST 9
+#define PURCHASE_PRICE 10
+#define VIRTUAL_STOCK 11
 
 
 #include "../lib/variable.hpp"
@@ -38,6 +37,7 @@ public:
 
     double evaluatePointControle(std::vector<Variable>& variables, std::vector<double> state);
     
+    double evaluateRecomplete(std::vector<Variable> &variables, std::vector<double> state, int day);
     
 private:
     std::vector<double> constants;

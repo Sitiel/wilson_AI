@@ -104,7 +104,24 @@ int main(int argc, const char * argv[]) {
 
     vector<double> content;
 
-    content.push_back(0);
+    /*content.push_back(15);
+    content.push_back(26154);
+    content.push_back(782);
+    content.push_back(-1.4);
+    content.push_back(18);
+    content.push_back(7);
+    content.push_back(0.3);
+    content.push_back(0.25);
+    content.push_back(0.5);
+    content.push_back(1000);
+    content.push_back(50);
+
+    vector<Variable> variables;
+    variables.push_back(Variable(1,1.9999999));
+    variables.push_back(Variable(1,10000));
+    variables.push_back(Variable(1,10000));
+    variables.push_back(Variable(1,10000));*/
+    
     content.push_back(21);
     content.push_back(36279);
     content.push_back(524);
@@ -116,17 +133,17 @@ int main(int argc, const char * argv[]) {
     content.push_back(0.4);
     content.push_back(400);
     content.push_back(100);
-
+    
     vector<Variable> variables;
-    variables.push_back(Variable(0,1.9999999,1));
+    variables.push_back(Variable(0,0.9999,0));
     variables.push_back(Variable(1,10000,1771));
-    variables.push_back(Variable(1,10000,8347)); 
+    variables.push_back(Variable(1,10000,8347));
     
     Evaluateur* env = new Evaluateur(content);
     
     cout << "Tabou : ";
     
-    cout << " value : " << tabou(env, variables);
+    cout << tabou(env, variables);
     cout << endl;
     
     return 0;

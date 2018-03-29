@@ -53,7 +53,9 @@ double Evaluateur::evaluate(vector<Variable> &variables)
                 totalCost += (state[STOCK] * constants[PURCHASE_PRICE] * constants[OWNERSHIP_RATE]) / 365;
             }
         }
-        double delivery = evaluatePointControle(variables, state);
+        
+        double delivery = variables[0].value == 0 ? evaluatePointControle(variables, state) : evaluateRecomplete(variables, state, i);
+        
         livraison[i + constants[DELAY_LIVRAISON]] = delivery;
         state[VIRTUAL_STOCK] += delivery;
         if (delivery > 0){
@@ -66,10 +68,41 @@ double Evaluateur::evaluate(vector<Variable> &variables)
 
 double Evaluateur::evaluatePointControle(std::vector<Variable> &variables, std::vector<double> state)
 {
+    //Variable 0 = Evaluateur
+    //Variable 1 = Quantitée à commander
+    //Variable 2 = Point de controle
+    
+    
     if (state[VIRTUAL_STOCK] >= variables[2].value)
         return 0;
     return variables[1].value;
 }
+
+double Evaluateur::evaluateRecomplete(std::vector<Variable> &variables, std::vector<double> state, int day)
+{
+    
+    //Variable 0 = Evaluateur
+    //Variable 1 = Point de controle
+    //Variable 2 = Jour de début
+    //Variable 3 = Interval
+    
+    
+    if (state[VIRTUAL_STOCK] >= variables[1].value){
+        return 0;
+    }
+    
+    if(day < variables[2].value){
+        return 0;
+    }
+    
+    if(day % (int)variables[3].value != 1){
+        return 0;
+    }
+    
+    return variables[1].value - state[VIRTUAL_STOCK];
+}
+
+
 
 double Evaluateur::calculOrder(int day)
 {
