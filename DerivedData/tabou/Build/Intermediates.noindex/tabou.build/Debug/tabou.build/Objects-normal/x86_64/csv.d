@@ -1,2 +1,3 @@
-dependencies: /Users/valerian/Documents/Parcours_SA/tabout/tabou/csv.cpp \
-  /Users/valerian/Documents/Parcours_SA/tabout/tabou/csv.hpp
+dependencies: \
+  /Users/valerian/Documents/Parcours_SA/tabout/tabou/lib/csv.cpp \
+  /Users/valerian/Documents/Parcours_SA/tabout/tabou/lib/csv.hpp
