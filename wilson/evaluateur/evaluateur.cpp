@@ -18,7 +18,7 @@ Evaluateur::Evaluateur(vector<vector<double>> &constants){
 double Evaluateur::evaluate(std::vector<Variable*>& variables) {
     double totalDelta = 0;
     
-    for(int i = 0 ; i < constants.size() ; i++)
+    for(unsigned int i = 0 ; i < constants.size() ; i++)
     {
         double z = constants[i][5];
         
@@ -43,7 +43,7 @@ double Evaluateur::evaluate(std::vector<Variable*>& variables) {
 double Evaluateur::evaluate(vector<Variable>& variables){
     double totalDelta = 0;
     
-    for(int i = 0 ; i < constants.size() ; i++)
+    for(unsigned int i = 0 ; i < constants.size() ; i++)
     {
         double z = constants[i][5];
         

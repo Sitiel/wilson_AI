@@ -1,99 +1,99 @@
-#include "/home/imerir/Prog/A2/Sa/Optimisation/Projet-Jeudi/GitProj/wilson_AI/wilson/performances.hpp"
-#include "/home/imerir/Prog/A2/Sa/Optimisation/Projet-Jeudi/GitProj/wilson_AI/wilson/lib/csv.hpp"
-#include "/home/imerir/Prog/A2/Sa/Optimisation/Projet-Jeudi/GitProj/wilson_AI/wilson/lib/environnement.hpp"
-
+#include "../performances.hpp"
+#include "../lib/csv.hpp"
+#include "../evaluateur/evaluateur.hpp"
+#include <cmath>
 
 using namespace std;
 
+double getFirstTemp(double delta, double pourcentage){
+    return (-delta/log(pourcentage));
+}
 
-double recuit(Environnement* env, vector<Variable*>& variables){
+double calculeRecuit(double delta, double temperature){
+    return exp(-delta/temperature);
+}
 
-    double current = -1;
-    vector<vector<Variable>> lrecuit;
-    int ltabouCmp = 0;
-    double best = -1;
-    int i = 0, j = 0;
-    double newCurrent;
-    while(i < 1000){
-        i++;
+double fRand(double fMin, double fMax)
+{
+    double f = (double)rand() / RAND_MAX;
+    return fMin + f * (fMax - fMin);
+}
 
-        j = 0;
-        newCurrent = -1;
-
-        while(j < 100000){
-
-            int r = rand()%variables.size();
-            variables[r]->randomise();
-
-
-            bool found = false;
-            for(unsigned int k = 0 ; k < lrecuit.size() ; k++){
-                double diff = 0;
-                for(unsigned int q = 0 ; q < lrecuit[k].size() ; q++){
-                    diff += variables[q]->compare(lrecuit[k][q]);
-                }
-                diff /= lrecuit[k].size();
-                if(diff < 0.01){
-                    found = true;
-                    break;
-                }
-            }
-            if (found)
-                continue;
-
-            double tmpEval = env->evaluate(variables);
-            if(tmpEval < newCurrent || newCurrent == -1){
-                newCurrent = tmpEval;
-            }
-            else{
-                variables[r]->revert();
-            }
-            j++;
-        }
-
-        if(lrecuit.size() < 10){
-            vector<Variable> v;
-            for(unsigned int i = 0 ; i < variables.size() ; i++){
-                v.push_back(*variables[i]);
-            }
-            lrecuit.push_back(v);
-        }
-        else{
-            vector<Variable> v;
-            for(unsigned int i = 0 ; i < variables.size() ; i++){
-                v.push_back(*variables[i]);
-            }
-            lrecuit[ltabouCmp] = v;
-        }
-
-        ltabouCmp++;
-        if(ltabouCmp > 10)
-            ltabouCmp = 0;
-
-
-
-        current = newCurrent;
-        if(current < best || best == -1)
-            best = current;
+double calculeTemperature(double temp){
+    if(temp<=1){
+        return 1;
     }
-    return best;
+    return temp*0.99999;
+}
+
+double recuit(Evaluateur* eva, vector<Variable*>& variables){
+
+    vector<Variable*> vBest;
+    double bestDiff = -1;
+    double DiffMin = -1;
+    int i = 0, j = 0;
+    double Diff = 0;
+    double temp = getFirstTemp(10000,0.6);
+    int indice = 0;
+
+    while(i <= 100000 && j<50000 && DiffMin != 0){
+        Diff = 0;
+        //$K$2*PUISSANCE(A2;$K$3)+$L$2*PUISSANCE(B2;$L$3)+$M$2*PUISSANCE(C2;$M$3)+$N$2*PUISSANCE(D2;$N$3)+$O$2*PUISSANCE(E2;$O$3)
+        Diff = eva->evaluate(variables);
+
+        if(Diff<DiffMin || DiffMin == -1){
+            if(bestDiff>Diff || bestDiff == -1){
+                bestDiff = Diff;
+                vBest = variables;
+                cout << bestDiff << " | Temperature : " << temp <<" | " << i<<endl;
+            }
+            DiffMin = Diff;
+            //cout << bestDiff << " | " << DiffMin << " Temperature : " << temp <<" | " << i<<endl;
+            j = 0;
+        }else{
+            //Calcul du recuit
+            double k = fRand(0,1);
+            if(k<calculeRecuit(Diff-DiffMin,temp)){
+                DiffMin = Diff;
+                //cout << bestDiff << " | " << DiffMin << " Temperature : " << temp <<" | " << i<<endl;
+                j = 0;
+            }else{
+                variables[indice]->revert();
+            }
+        }
+        //On change le Sprim avec un voisin de Setoile
+        //On change une des variables aléatoirement
+        indice = rand() % 10;
+        //cout << "Indice : " << indice << endl;
+        variables[indice]->randomise();
+
+        j++;
+        i++;
+        temp = calculeTemperature(temp);
+    }
+    variables = vBest;
+    return bestDiff;
 }
 
 
-int main(int argc, const char * argv[]) {
+int main() {
 
 
+//    CSVReader csv("../../sample01-20productsFR.csv");
+//    vector<vector<int>> content;
     CSVReader csv("FNL.csv");
     vector<vector<double>> content;
+    vector<vector<Variable*>> test;
+    vector<vector<string>> test2;
     csv.read(content);
-    /*
-    for(int i = 0 ; i < content.size() ; i++){
-        for (int j = 0 ; j < content[i].size() ; j++){
-            cout << content[i][j] << " ";
-        }
-        cout << endl;
-    }
-    */
+
+//    for(int i = 0 ; i < content.size() ; i++){
+//        for (int j = 0 ; j < content[i].size() ; j++){
+//            cout << content[i][j] << " ";
+//        }
+//        cout << endl;
+//    }
+
     srand(5);
 
     vector<Variable*> variables;
@@ -105,11 +105,17 @@ int main(int argc, const char * argv[]) {
         variables.push_back(new Variable(1, 10));
     }
 
-    Environnement* env = new Environnement(content);
+    for (int j = 0 ; j < variables.size() ; j++){
+        cout << variables[j]->value << ";";
+    }
+
+    Evaluateur* eva = new Evaluateur(content);
 
     //cout << "Environnement value : " << env->evaluate(variables) << endl;
 
-    cout << "Recuit found : " << recuit(env, variables) << endl;
 
+    cout << "Recuit found : " << recuit(eva, variables) << endl;
+    test.push_back(variables);
+    csv.write(test);
     return 0;
 }
