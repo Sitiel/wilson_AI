@@ -56,10 +56,9 @@ double Evaluateur::evaluate(vector<Variable> &variables)
         double delivery = evaluatePointControle(variables, state, i);
         livraison[i + constants[DELAY_LIVRAISON]] = delivery;
         state[VIRTUAL_STOCK] += delivery;
-        if (delivery > 0)
+        if (delivery > 0){
             totalCost += constants[ORDER_COST];
-
-        cout << "Stock " << state[STOCK] << endl;
+        }
     }
 
     return totalCost;
@@ -74,7 +73,8 @@ double Evaluateur::evaluatePointControle(std::vector<Variable> &variables, std::
 
 double Evaluateur::calculOrder(int day)
 {
-    return (this->constants[INITIAL_DEMANDE] + (day * this->constants[INCREASE])) * (dayToMonth[day] == constants[MONTH_SAISONALITY] ? 1 + constants[PERCENT_OF_SAISONALITY] : 1);
+    double res = (this->constants[INITIAL_DEMANDE] + (day * this->constants[INCREASE])) * (dayToMonth[day] == constants[MONTH_SAISONALITY] ? 1 + constants[PERCENT_OF_SAISONALITY] : 1);
+    return res;
 }
 
 void Evaluateur::initDayToMonth() {
