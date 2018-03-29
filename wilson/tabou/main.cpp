@@ -1,6 +1,6 @@
-#include "performances.hpp"
-#include "csv.hpp"
-#include "environnement.hpp"
+#include "../performances.hpp"
+#include "../lib/csv.hpp"
+#include "../lib/environnement.hpp"
 
 
 using namespace std;
@@ -14,13 +14,13 @@ double tabou(Environnement* env, vector<Variable*>& variables){
     double best = -1;
     int i = 0, j = 0;
     double newCurrent;
-    while(i < 1000){
+    while(i < 100){
         i++;
         
         j = 0;
         newCurrent = -1;
         
-        while(j < 100000){
+        while(j < 1000){
             
             int r = rand()%variables.size();
             variables[r]->randomise();
