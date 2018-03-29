@@ -15,7 +15,7 @@ public:
     void randomise();
     void gaussianRandomise(double k);
     void revert();
-    void addEntierConstraint();
+    void removeEntierConstraint();
     double compare(Variable &b);
     double compare(Variable *b);
     double value;

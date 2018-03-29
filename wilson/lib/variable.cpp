@@ -18,7 +18,7 @@ Variable::Variable(double lowerBound, double upperBound, double value) {
     this->lowerBound = lowerBound;
     this->upperBound = upperBound;
     this->value = value;
-    this->entier = false;
+    this->entier = true;
     if(value == -1)
         randomise();
 }
@@ -39,13 +39,24 @@ void Variable::revert(){
 void Variable::gaussianRandomise(double k) {
     previous = this->value;
     std::default_random_engine generator;
-    std::normal_distribution<double> distribution(this->value,k);
-    double generated = -1;
-    do{
-        generated = distribution(generator);
-    }while(generated < lowerBound || generated > upperBound);
-    
-    this->value = generated;
+    if(this->entier){
+        std::normal_distribution<double> distribution(this->value,k);
+        int generated = -1;
+        do{
+            generated = distribution(generator);
+        }while(generated < lowerBound || generated > upperBound);
+
+        this->value = generated;
+    }else{
+        std::normal_distribution<double> distribution(this->value,k);
+        double generated = -1;
+        do{
+            generated = distribution(generator);
+        }while(generated < lowerBound || generated > upperBound);
+
+        this->value = generated;
+    }
+
 }
 
 double Variable::compare(Variable &b) { 
@@ -56,7 +67,7 @@ double Variable::compare(Variable *b) {
     return  (abs(value - b->value) - lowerBound) / (upperBound - lowerBound);
 }
 
-void Variable::addEntierConstraint(){
-    this->entier = true;
+void Variable::removeEntierConstraint(){
+    this->entier = false;
 }
 

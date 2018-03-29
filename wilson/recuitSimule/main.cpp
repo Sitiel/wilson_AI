@@ -63,7 +63,7 @@ double recuit(Evaluateur* eva, vector<Variable*>& variables){
         }
         //On change le Sprim avec un voisin de Setoile
         //On change une des variables aléatoirement
-        indice = rand() % 10;
+        indice = rand() % variables.size();
         //cout << "Indice : " << indice << endl;
         variables[indice]->randomise();
 
@@ -83,7 +83,7 @@ int main() {
 //    vector<vector<int>> content;
     CSVReader csv("FNL.csv");
     vector<vector<double>> content;
-    vector<vector<Variable*>> test;
+    vector<vector<Variable*>> retour;
     vector<vector<string>> test2;
     csv.read(content);
 
@@ -94,28 +94,39 @@ int main() {
 //        cout << endl;
 //    }
 
-    srand(5);
+    srand(time(NULL));
 
-    vector<Variable*> variables;
-    for(int i = 0 ; i < 5 ; i++){
-        variables.push_back(new Variable(-100, 100));
+//    vector<Variable*> variables;
+//    for(int i = 0 ; i < 5 ; i++){
+//        variables.push_back(new Variable(-100, 100));
+//    }
+
+//    for(int i = 0 ; i < 5 ; i++){
+//        variables.push_back(new Variable(1, 10));
+//    }
+
+//    for (int j = 0 ; j < variables.size() ; j++){
+//        cout << variables[j]->value << ";";
+//    }
+
+    for(int i = 0; content.size(); i++){
+        vector<Variable*> variables;
+        for(int i = 0 ; i < 5 ; i++){
+            variables.push_back(new Variable(-100, 100));
+        }
+
+        for(int i = 0 ; i < 5 ; i++){
+            variables.push_back(new Variable(1, 10));
+        }
+        Evaluateur* eva = new Evaluateur(content[i]);
+        recuit(eva, variables);
+        retour.push_back(variables);
     }
 
-    for(int i = 0 ; i < 5 ; i++){
-        variables.push_back(new Variable(1, 10));
-    }
-
-    for (int j = 0 ; j < variables.size() ; j++){
-        cout << variables[j]->value << ";";
-    }
-
-    Evaluateur* eva = new Evaluateur(content);
 
     //cout << "Environnement value : " << env->evaluate(variables) << endl;
-
-
-    cout << "Recuit found : " << recuit(eva, variables) << endl;
-    test.push_back(variables);
-    csv.write(test);
+//    cout << "Recuit found : " << recuit(eva, variables) << endl;
+//    test.push_back(variables);
+    csv.write(retour);
     return 0;
 }

@@ -36,7 +36,7 @@ public:
     double evaluate(std::vector<Variable*>& variables);
     double evaluate(std::vector<Variable>& variables);
 
-    double evaluatePointControle(std::vector<Variable>& variables, std::vector<double> state, int day);
+    double evaluatePointControle(std::vector<Variable>& variables, std::vector<double> state);
     
     
 private:
