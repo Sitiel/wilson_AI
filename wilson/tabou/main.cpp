@@ -219,7 +219,7 @@ int main(int argc, const char *argv[])
     double total = 0;
     
     vector<vector<Variable>> allSolutions;
-    for (int t = 5 ; t < content.size() ; t++)
+    for (int t = 0 ; t < content.size() ; t++)
     {
         vector<double> cont = content[t];
         cout << "LIGNE CSV " << t << endl;
