@@ -14,7 +14,7 @@ CC            = gcc
 CXX           = g++
 DEFINES       = -DQT_QML_DEBUG
 CFLAGS        = -pipe -g -Wall -W -fPIC $(DEFINES)
-CXXFLAGS      = -pipe -g -std=gnu++11 -Wall -W -fPIC $(DEFINES)
+CXXFLAGS      = -pipe -std=c++0x -pthread -g -std=gnu++11 -Wall -W -fPIC $(DEFINES)
 INCPATH       = -I../wilson -I. -I/home/imerir/Qt5.9.1/5.9.1/gcc_64/mkspecs/linux-g++
 QMAKE         = /home/imerir/Qt5.9.1/5.9.1/gcc_64/bin/qmake
 DEL_FILE      = rm -f
@@ -38,7 +38,7 @@ DISTNAME      = wilson1.0.0
 DISTDIR = /home/imerir/Prog/A2/Sa/Optimisation/Projet-Jeudi/GitProj/wilson_AI/wilson/build-wilson-Desktop_Qt_5_9_1_GCC_64bit-Debug/.tmp/wilson1.0.0
 LINK          = g++
 LFLAGS        = 
-LIBS          = $(SUBLIBS)  
+LIBS          = $(SUBLIBS) -pthread 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -641,7 +641,8 @@ compiler_clean:
 
 ####### Compile
 
-csv.o: ../lib/csv.cpp ../lib/csv.hpp
+csv.o: ../lib/csv.cpp ../lib/csv.hpp \
+		../lib/variable.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o csv.o ../lib/csv.cpp
 
 variable.o: ../lib/variable.cpp ../lib/variable.hpp
@@ -649,8 +650,8 @@ variable.o: ../lib/variable.cpp ../lib/variable.hpp
 
 main.o: ../recuitSimule/main.cpp ../performances.hpp \
 		../lib/csv.hpp \
-		../evaluateur/evaluateur.hpp \
-		../lib/variable.hpp
+		../lib/variable.hpp \
+		../evaluateur/evaluateur.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../recuitSimule/main.cpp
 
 evaluateur.o: ../evaluateur/evaluateur.cpp ../evaluateur/evaluateur.hpp \

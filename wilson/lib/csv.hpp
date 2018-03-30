@@ -16,7 +16,7 @@
 
 class CSVReader{
 public:
-    CSVReader(char *filename);
+    CSVReader(std::string filename = "");
     void read(std::vector<std::vector<double>> &content);
     void read(std::vector<std::vector<std::string>> &content);
     void read(std::vector<std::vector<int>> &content);
@@ -24,9 +24,11 @@ public:
     void write(std::vector<std::vector<std::string>> &content, std::string name = "");
     void write(std::vector<std::vector<Variable>> &content, std::string name = "");
 //    void write(std::vector<std::vector<int>> &content);
+    void writeThread(std::vector<Variable> &content, std::string name = "");
+
     void errorOpeningFile();
 private:
-    char* filename;
+    std::string filename;
 };
 
 #endif /* csv_hpp */

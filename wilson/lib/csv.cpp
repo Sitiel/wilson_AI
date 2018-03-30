@@ -127,12 +127,12 @@ void CSVReader::write(vector<vector<Variable>> &content, string name){
         int sec = (int) tv.tv_sec;
         int usec = (int) tv.tv_usec % 0x100000;
         char newname[255];
-        sprintf(newname,"%08x%05x", sec, usec);
+        sprintf(newname,"%08x%05x.csv", sec, usec);
         csv.open(newname,ofstream::app);
     }
 
 
-    csv << "Name;Method;Value1;Value2;Value3\n";
+    csv << "Name;Method;Quantité Maximum;Pt Commande/Période;1er Commande\n";
     csv.flush();
     for(unsigned int i = 0; i <content.size();i++){
         if(i+1<10){
@@ -165,7 +165,7 @@ void CSVReader::write(vector<vector<Variable>> &content, string name){
 
 }
 
-CSVReader::CSVReader(char *filename) { 
+CSVReader::CSVReader(string filename) {
     this->filename = filename;
 }
 
