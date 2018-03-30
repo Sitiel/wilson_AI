@@ -187,7 +187,13 @@ int main(int argc, const char *argv[])
     content.push_back(0.3);
     content.push_back(0.4);
     content.push_back(2500);
-    content.push_back(268);*/
+    content.push_back(268);
+
+      vector<Variable> variables;
+    variables.push_back(Variable(1,1.9999999));
+    variables.push_back(Variable(1,50000, 4000));
+    variables.push_back(Variable(1,10000, 1));
+    variables.push_back(Variable(1,10000, 4));*/
 
     /*content.push_back(21);
     content.push_back(36279);
@@ -212,17 +218,8 @@ int main(int argc, const char *argv[])
 
     CSVReader csv("./sample01-20productsEN.csv");
     vector<vector<double>> content;
-    //vector<double> content;
-    //    CSVReader csv("FNL.csv");
-    //    vector<vector<double>> content;
     vector<vector<Variable>> retour;
     csv.read(content);
-
-    /*vector<Variable> variables;
-    //Très important sur la vitesse, la délimitation des variables
-    variables.push_back(Variable(0,0.9999,0));
-    variables.push_back(Variable(1,10000));
-    variables.push_back(Variable(1,10000));*/
     int t = 0;
     double total = 0;
     for (vector<double> cont : content)
@@ -233,10 +230,18 @@ int main(int argc, const char *argv[])
         for (int i = 0; i < 8; i++)
         {
             vector<Variable> variables;
-            variables.push_back(Variable(0, 1.9999999));
-            variables.push_back(Variable(1, 5000000));
-            variables.push_back(Variable(1, 1000000));
-            variables.push_back(Variable(1, 1000000));
+            if (i % 2) {
+                variables.push_back(Variable(0, 0.9999999));
+                variables.push_back(Variable(1, 5000000));
+                variables.push_back(Variable(1, 1000000));
+            }
+            else {
+                variables.push_back(Variable(1, 1.9999999));
+                variables.push_back(Variable(1, 5000000));
+                variables.push_back(Variable(1, 261));
+                variables.push_back(Variable(1, 150));
+            }
+                
             Evaluateur env = Evaluateur(cont);
             if (i == 0 || i == 1)
                 env.setSafe();
@@ -263,15 +268,21 @@ int main(int argc, const char *argv[])
 
         cout << "Tabou : "; // << env->evaluate(variables);
 
-        cout << bestTabou;
+        cout << fixed << bestTabou;
         cout << endl;
         total += bestTabou;
         bestTabou = -1;
     }
+    cout << "Total Finale " << fixed << total << endl;
 
-    cout << "Total Finale " << total << endl;
+   /* vector<Variable> variables;
+    variables.push_back(Variable(0,0.9999,0));
+    variables.push_back(Variable(1,10000,5081));
+    variables.push_back(Variable(1,10000,4349));
+    variables.push_back(Variable(1,10000,174780));
 
-    /*Evaluateur eval(content);
+    Evaluateur eval(content[0]);
+    eval.setMedium();
     cout << "Res " << eval.evaluate(variables) << endl;*/
 
     return 0;
