@@ -98,12 +98,14 @@ void recuitThread(Evaluateur* eva, vector<Variable> variables, int indiceRetour,
         if(bestDiff<bestDiffs[indiceRetour]){
             retour[indiceRetour]=variables;
             bestDiffs[indiceRetour]=bestDiff;
-            cout << "A0" << indiceRetour+1 << "Solution Améliorée : " << bestDiff << endl;
+            cout << "A0" << indiceRetour+1 << "Solution Améliorée : " << fixed << bestDiff << endl;
+        }else{
+            cout << "A0" << indiceRetour+1 << "Solution non Améliorée" << endl;
         }
     }else{
         retour[indiceRetour]=variables;
         bestDiffs[indiceRetour]=bestDiff;
-        cout << "A0" << indiceRetour+1 << "Solution trouvée : " << bestDiff << endl;
+        cout << "A0" << indiceRetour+1 << "Solution trouvée : " << fixed << bestDiff << endl;
     }
 
     //On libère la place
@@ -137,6 +139,7 @@ int main() {
     vector<Variable> tmp;
     for(unsigned int i = 0; i<content.size();i++){
         retour.push_back(tmp);
+        bestDiffs.push_back(0.0);
     }
 //    for(int i = 0 ; i < content.size() ; i++){
 //        for (int j = 0 ; j < content[i].size() ; j++){
