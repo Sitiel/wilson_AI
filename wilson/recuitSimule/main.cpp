@@ -6,7 +6,7 @@
 #include <pthread.h>
 
 using namespace std;
-#define nbThread 3
+#define nbThread 5
 
 vector<vector<Variable>> retour;
 vector<double> bestDiffs;
@@ -173,14 +173,18 @@ int main() {
             i++;
             //cout <<" lancement de thread n: "<<i<<endl;
             vector<Variable> variables;
-            if (i>=content.size()){
+            if (i>content.size()){
                 variables.push_back(Variable(1, 1.9999));
+                for(int i = 0 ; i < 2 ; i++){
+                    variables.push_back(Variable(1, 100000));
+                }
             }else{
                 variables.push_back(Variable(0, 0.9999));
+                for(int i = 0 ; i < 3 ; i++){
+                    variables.push_back(Variable(1, 100000));
+                }
             }
-            for(int i = 0 ; i < 3 ; i++){
-                variables.push_back(Variable(1, 100000));
-            }
+
             Evaluateur* eva = new Evaluateur(content[(i-1)%content.size()]);
             eva->setMedium();
             //On bloque la place

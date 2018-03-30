@@ -1,0 +1,21 @@
+Name;Method;Quantité Maximum;Pt Commande/Période;1er Commande;Metaheuristique
+A01;OrderPoint;1999;1987;24145;Recuit
+A02;OrderPoint;6859;12996;99728;Recuit
+A03;OrderPoint;3164;1944;7684;Recuit
+A04;OrderPoint;18913;47851;37448;Recuit
+A05;Replenishment;63778;2;1;Recuit
+A06;OrderPoint;481;16147;19858;Recuit
+A07;OrderPoint;7099;21297;32100;Recuit
+A08;OrderPoint;17914;31086;90773;Recuit
+A09;OrderPoint;14257;22393;60157;Recuit
+A10;OrderPoint;8772;7921;65166;Recuit
+A11;OrderPoint;1239;2745;14526;Recuit
+A12;OrderPoint;665;1739;7706;Recuit
+A13;Replenishment;85433;7;1;Recuit
+A14;OrderPoint;3838;4816;38011;Recuit
+A15;Replenishment;80331;3;1;Recuit
+A16;OrderPoint;2111;3852;45387;Recuit
+A17;OrderPoint;6959;6773;31121;Recuit
+A18;OrderPoint;12239;35305;44921;Recuit
+A19;OrderPoint;806;1441;96323;Recuit
+A20;OrderPoint;3982;4658;60624;Recuit
