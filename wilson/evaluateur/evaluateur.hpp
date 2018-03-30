@@ -23,6 +23,11 @@
 #define VIRTUAL_STOCK 11
 
 
+#define RISK_SAFE 0
+#define RISK_MEDIUM 1
+#define RISK_RISKY 2
+#define RISK_RANDOM 3
+
 #include "../lib/variable.hpp"
 #include <iostream>
 #include <vector>
@@ -34,6 +39,13 @@ public:
     
     double evaluate(std::vector<Variable*>& variables);
     double evaluate(std::vector<Variable>& variables);
+    
+    void setRisky();
+    void setSafe();
+    void setMedium();
+    void setRandom();
+    
+    double variation();
 
     double evaluatePointControle(std::vector<Variable>& variables, std::vector<double> state);
     
@@ -45,6 +57,7 @@ private:
     std::map<int, int> dayToMonth;
     double calculOrder(int day);
     void initDayToMonth();
+    int riskMode;
 };
 
 #endif /* Evaluateur */

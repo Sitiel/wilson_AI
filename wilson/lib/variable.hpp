@@ -18,6 +18,8 @@ public:
     void removeEntierConstraint();
     double compare(Variable &b);
     double compare(Variable *b);
+    void add(double value);
+    double calculDiff();
     double value;
     double lowerBound, upperBound;
     

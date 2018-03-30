@@ -32,6 +32,18 @@ void Variable::randomise() {
     }
 }
 
+void Variable::add(double value){
+    this->value += value;
+    if(this->value > upperBound)
+        this->value = upperBound;
+    if(this->value < lowerBound)
+        this->value = lowerBound;
+}
+
+double Variable::calculDiff(){
+    return this->value - this->previous;
+}
+
 void Variable::revert(){
     this->value = previous;
 }
@@ -59,12 +71,12 @@ void Variable::gaussianRandomise(double k) {
 
 }
 
-double Variable::compare(Variable &b) { 
-    return  (abs(value - b.value) - lowerBound) / (upperBound - lowerBound);
+double Variable::compare(Variable &b) {
+    return  (abs(value - b.value)) / (upperBound);
 }
 
 double Variable::compare(Variable *b) { 
-    return  (abs(value - b->value) - lowerBound) / (upperBound - lowerBound);
+    return  (abs(value - b->value)) / (upperBound);
 }
 
 void Variable::removeEntierConstraint(){

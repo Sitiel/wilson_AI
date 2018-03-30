@@ -1,73 +1,105 @@
 #include "../performances.hpp"
 #include "../lib/csv.hpp"
 #include "../evaluateur/evaluateur.hpp"
+#include <thread>
 
+#define SIZE_LTABOU 10
 
 using namespace std;
 
+double bestTabou = -1;
 
-double tabou(Evaluateur* env, vector<Variable>& variables){
+vector<vector<vector<Variable>>> ltabou;
+
+
+double tabou(Evaluateur env, vector<Variable> variables, int id = 0){
     
     double current = -1;
-    vector<vector<Variable>> ltabou;
+    
     int ltabouCmp = 0;
     double best = -1;
     int i = 0, j = 0;
     vector<Variable> bVariables;
     double newCurrent;
-    while(i < 100){
+    
+    double previousDiff = -1;
+    int indexDiff = -1;
+    
+    int nbNotProgressing = 0;
+    
+    while(i < 10000){
         i++;
         j = 0;
         newCurrent = -1;
         
-        while(j < 1000){
+        
+        int stuckCount = 0;
+        while(j < 100){
             
-            int r = rand()%variables.size();
-            variables[r].randomise();
+            if(stuckCount > 100){
+                //Random walk
+                for(int k = 0 ; k < variables.size() ; k++){
+                    variables[k].randomise();
+                }
+                break;
+            }
+            
+            int r = -1;
+            if(indexDiff == -1){
+                r = rand()%variables.size();
+                variables[r].randomise();
+            }
+            else{
+                r = indexDiff;
+                variables[r].add(previousDiff);
+            }
+            
             
             
             bool found = false;
             for(int k = 0 ; k < ltabou.size() ; k++){
-                double diff = 0;
-                for(int q = 0 ; q < ltabou[k].size() ; q++){
-                    diff += variables[q].compare(ltabou[k][q]);
+                for(int l = 0 ; l < ltabou[k].size() ; l++){
+                    double diff = 0;
+                    for(int q = 0 ; q < ltabou[k][l].size() ; q++){
+                        diff += variables[q].compare(ltabou[k][l][q]);
+                    }
+                    if(diff <= 0.0001){
+                        found = true;
+                        stuckCount++;
+                        break;
+                    }
                 }
-                diff /= ltabou[k].size();
-                if(diff < 0.001){
-                    found = true;
+                
+                if(found)
                     break;
-                }
             }
             if (found)
                 continue;
             
-            double tmpEval = env->evaluate(variables);
+            double tmpEval = env.evaluate(variables);
             if(tmpEval < newCurrent || newCurrent == -1){
                 newCurrent = tmpEval;
+                //indexDiff = r;
+                //previousDiff = variables[r].calculDiff();
             }
             else{
                 variables[r].revert();
+                indexDiff = -1;
+                previousDiff = -1;
             }
             j++;
         }
         
-        if(ltabou.size() < 10){
-            vector<Variable> v;
-            for(int i = 0 ; i < variables.size() ; i++){
-                v.push_back(variables[i]);
-            }
-            //ltabou.push_back(v);
+        vector<Variable> v = variables;
+        if(ltabou.size() < SIZE_LTABOU){
+            //ltabou[id].push_back(v);
         }
         else{
-            vector<Variable> v;
-            for(int i = 0 ; i < variables.size() ; i++){
-                v.push_back(variables[i]);
-            }
-            //ltabou[ltabouCmp] = v;
+            ltabou[id][ltabouCmp] = v;
         }
         
         ltabouCmp++;
-        if(ltabouCmp > 10)
+        if(ltabouCmp >= SIZE_LTABOU)
             ltabouCmp = 0;
         
         current = newCurrent;
@@ -75,14 +107,24 @@ double tabou(Evaluateur* env, vector<Variable>& variables){
             best = current;
             bVariables = variables;
         }
+        else{
+            nbNotProgressing++;
+        }
+        if(nbNotProgressing >= 20){
+            //RandomWalk, we move from this solution, we are stuck
+            for(int k = 0 ; k < variables.size() ; k++){
+                variables[k].randomise();
+            }
+        }
     }
     
     for(int i = 0 ; i < bVariables.size() ; i++){
         cout << bVariables[i].value << " ";
     }
     cout << endl;
-    
-    
+    cout << "My best (" << id << ") is " << best << endl;
+    if(best < bestTabou || bestTabou == -1)
+        bestTabou = best;
     return best;
 }
 
@@ -100,29 +142,42 @@ int main(int argc, const char * argv[]) {
         cout << endl;
     }
     */
-    srand(time(NULL));
+    srand(5);
 
-    vector<double> content;
+    //vector<double> content;
+/*
+#define DELAY_LIVRAISON 0
+#define STOCK 1
+#define INITIAL_DEMANDE 2
+#define INCREASE 3
+#define VARIATION 4
+#define MONTH_SAISONALITY 5
+#define PERCENT_OF_SAISONALITY 6
+#define OWNERSHIP_RATE 7
+#define OUT_STOCK_PERCENT 8
+#define ORDER_COST 9
+#define PURCHASE_PRICE 10
+#define VIRTUAL_STOCK 11*/
 
-    /*content.push_back(15);
-    content.push_back(26154);
-    content.push_back(782);
-    content.push_back(-1.4);
-    content.push_back(18);
-    content.push_back(7);
+    /*content.push_back(4);
+    content.push_back(1456);
+    content.push_back(68);
+    content.push_back(2.8);
+    content.push_back(30);
+    content.push_back(1);
     content.push_back(0.3);
-    content.push_back(0.25);
-    content.push_back(0.5);
-    content.push_back(1000);
-    content.push_back(50);
+    content.push_back(0.3);
+    content.push_back(0.4);
+    content.push_back(2500);
+    content.push_back(268);
 
     vector<Variable> variables;
     variables.push_back(Variable(1,1.9999999));
-    variables.push_back(Variable(1,10000));
-    variables.push_back(Variable(1,10000));
-    variables.push_back(Variable(1,10000));*/
+    variables.push_back(Variable(1,50000, 2712));
+    variables.push_back(Variable(1,10000, 3));
+    variables.push_back(Variable(1,10000, 4));*/
     
-    content.push_back(21);
+    /*content.push_back(21);
     content.push_back(36279);
     content.push_back(524);
     content.push_back(-1.4);
@@ -137,13 +192,54 @@ int main(int argc, const char * argv[]) {
     vector<Variable> variables;
     variables.push_back(Variable(0,0.9999,0));
     variables.push_back(Variable(1,10000,1771));
-    variables.push_back(Variable(1,10000,8347));
+    variables.push_back(Variable(1,10000,8347));*/
     
-    Evaluateur* env = new Evaluateur(content);
     
-    cout << "Tabou : ";
+    Variable v1(1, 10000, 59);
+    Variable v2(1, 10000, 60);
+
+    CSVReader csv("./sample01-20productsEN.csv");
+    vector<vector<double>> content;
+    //vector<double> content;
+    //    CSVReader csv("FNL.csv");
+    //    vector<vector<double>> content;
+    vector<vector<Variable>> retour;
+    csv.read(content);
     
-    cout << tabou(env, variables);
+    
+    vector<Variable> variables;
+    //Très important sur la vitesse, la délimitation des variables
+    variables.push_back(Variable(0,0.9999,0));
+    variables.push_back(Variable(1,10000));
+    variables.push_back(Variable(1,10000));
+
+    thread threads[8];
+    for(int i = 0 ; i < 8 ; i++){
+        Evaluateur env = Evaluateur(content[0]);
+        if(i == 0 || i == 1)
+            env.setSafe();
+        else if(i == 2 || i == 3)
+            env.setRandom();
+        else if(i == 4 || i == 5)
+            env.setMedium();
+        else if(i == 6 || i == 7)
+            env.setRisky();
+        
+        vector<vector<Variable>> tmp;
+        for(int j = 0 ; j < SIZE_LTABOU ; j++){
+            tmp.push_back(variables);
+        }
+        ltabou.push_back(tmp);
+        
+        threads[i] = thread(tabou, env, variables, i);
+    }
+    for(int i = 0 ; i < 8 ; i++){
+        threads[i].join();
+    }
+    
+    cout << "Tabou : "; // << env->evaluate(variables);
+    
+    cout << bestTabou;
     cout << endl;
     
     return 0;
