@@ -36,7 +36,7 @@ double Evaluateur::evaluate(vector<Variable> &variables)
     {
         
         /*if(livraison[i] > 0){
-            cout << "Livraison jour " << i << endl;
+            cout << "Livraison jour " << i << " de " << livraison[i] << endl;
         }*/
         this->state[STOCK] = (int)(state[STOCK] - calculOrder(i) + livraison[i]);
         //cout << "Stock jour " << i << " : " << state[STOCK] << endl;
@@ -44,25 +44,28 @@ double Evaluateur::evaluate(vector<Variable> &variables)
         this->state[VIRTUAL_STOCK] = (int)(state[VIRTUAL_STOCK] - calculOrder(i));
         if (this->state[STOCK] < 0)
         {
-            //cout << "Rupture Jour " << i << " de " << state[STOCK] << endl;
+            cout << "Rupture Jour " << i << " de " << state[STOCK] << endl;
             // Cas Rupture
-            totalCost -= state[STOCK] * constants[PURCHASE_PRICE] * constants[OUT_STOCK_PERCENT];
+            totalCost += -state[STOCK] * constants[PURCHASE_PRICE] * constants[OUT_STOCK_PERCENT];
+            state[STOCK] = 0;
         }
         else
         {
             if (i % 5 == 0)
             {
-                //cout << "Stock Fin Semaine " << i << " de " << state[STOCK] << endl;
+                cout << "Stock Fin Semaine " << i << " de " << state[STOCK] << endl;
                 // Cas stockage Vendredi
                 totalCost += (state[STOCK] * constants[PURCHASE_PRICE] * constants[OWNERSHIP_RATE] * 3) / 365;
             }
             else
             {
-                //cout << "Stock " << i << " de " << state[STOCK] << endl;
+                cout << "Stock " << i << " de " << state[STOCK] << endl;
                 // Cas stockage Semaine
                 totalCost += (state[STOCK] * constants[PURCHASE_PRICE] * constants[OWNERSHIP_RATE]) / 365;
             }
         }
+
+        cout << "Total Cost " << i << " de " << totalCost << endl;
         
         double delivery = variables[0].value == 0 ? evaluatePointControle(variables, state) : evaluateRecomplete(variables, state, i);
         
