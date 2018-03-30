@@ -6,10 +6,10 @@
 #include <pthread.h>
 
 using namespace std;
-#define nbThread 8
-
+#define nbThread 3
 
 vector<vector<Variable>> retour;
+vector<double> bestDiffs;
 //Tableau de booléen des threads
 bool execute[nbThread];
 thread threads[nbThread];
@@ -45,6 +45,7 @@ double recuit(Evaluateur* eva, vector<Variable>& variables){
     double temp = getFirstTemp(10000,0.6);
     int indice = 0;
 
+    //250000
     while(i <= 250000 && j<50000 && DiffMin != 0){
         Diff = 0;
         //$K$2*PUISSANCE(A2;$K$3)+$L$2*PUISSANCE(B2;$L$3)+$M$2*PUISSANCE(C2;$M$3)+$N$2*PUISSANCE(D2;$N$3)+$O$2*PUISSANCE(E2;$O$3)
@@ -79,23 +80,31 @@ double recuit(Evaluateur* eva, vector<Variable>& variables){
         i++;
         temp = calculeTemperature(temp);
     }
-    //cout << "Methode : "<< variables[0].value <<"Solution trouvée : " << bestDiff << " | Temperature : " << temp <<" | "<<endl;
     variables = vBest;
     return bestDiff;
 }
 
 
 void recuitThread(Evaluateur* eva, vector<Variable> variables, int indiceRetour, int indiceThread){
-
-    cout << "thread n : "<< indiceThread<<endl;
+    double bestDiff;
     //Appel de recuit
-    recuit(eva,variables);
+    bestDiff = recuit(eva,variables);
     //Ecriture dans un fichier
 
 //    string cheminFichier = "lignes/"+indiceRetour;
 //    CSVReader csv(cheminFichier);
 //    csv.write(tabFichier);
-    retour[indiceRetour]=variables;
+    if(variables[0].value == 1){
+        if(bestDiff<bestDiffs[indiceRetour]){
+            retour[indiceRetour]=variables;
+            bestDiffs[indiceRetour]=bestDiff;
+            cout << "A0" << indiceRetour+1 << "Solution Améliorée : " << bestDiff << endl;
+        }
+    }else{
+        retour[indiceRetour]=variables;
+        bestDiffs[indiceRetour]=bestDiff;
+        cout << "A0" << indiceRetour+1 << "Solution trouvée : " << bestDiff << endl;
+    }
 
     //On libère la place
     execute[indiceThread] = false;
@@ -126,7 +135,7 @@ int main() {
     csv.read(content);
 
     vector<Variable> tmp;
-    for(int i = 0; i<content.size();i++){
+    for(unsigned int i = 0; i<content.size();i++){
         retour.push_back(tmp);
     }
 //    for(int i = 0 ; i < content.size() ; i++){
@@ -151,27 +160,33 @@ int main() {
 //        cout << variables[j]->value << ";";
 //    }
 
-
+    //PointContrôle
     unsigned int i = 0;
-    while(i<content.size()){
+    while(i<content.size()*2){
         //std::cout << "variable numero = "<<i<<std::endl;
         // verif de thread libre
         indiceThread = verifThread();
         if(indiceThread!=-1){
             i++;
-            cout <<" lancement de thread n: "<<i<<endl;
+            //cout <<" lancement de thread n: "<<i<<endl;
             vector<Variable> variables;
-            variables.push_back(Variable(0, 1.9999));
+            if (i>=content.size()){
+                variables.push_back(Variable(1, 1.9999));
+            }else{
+                variables.push_back(Variable(0, 0.9999));
+            }
             for(int i = 0 ; i < 3 ; i++){
                 variables.push_back(Variable(1, 100000));
             }
-            Evaluateur* eva = new Evaluateur(content[i-1]);
+            Evaluateur* eva = new Evaluateur(content[(i-1)%content.size()]);
+            eva->setMedium();
             //On bloque la place
             execute[indiceThread] = true;
-            threads[indiceThread] = thread(recuitThread, eva, variables, i-1, indiceThread);
+            threads[indiceThread] = thread(recuitThread, eva, variables, (i-1)%content.size(), indiceThread);
         }
         //recuit(eva, variables);
     }
+
     //retour.push_back(variables);
 //        Evaluateur* eva = new Evaluateur(content);
 //        recuit(eva, variables);
@@ -186,7 +201,7 @@ int main() {
     // TODO func qui recupere les fichier des threads pour les reecrire dans un seul fichier
 
 
-    csv.write(retour);
+    csv.write(retour,"Recuit");
 
     return 0;
 }

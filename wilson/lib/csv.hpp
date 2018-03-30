@@ -13,7 +13,6 @@
 #include <vector>
 #include "variable.hpp"
 
-
 class CSVReader{
 public:
     CSVReader(std::string filename = "");
@@ -21,10 +20,9 @@ public:
     void read(std::vector<std::vector<std::string>> &content);
     void read(std::vector<std::vector<int>> &content);
 //    void write(std::vector<std::vector<double>> &content, std::string name = NULL);
-    void write(std::vector<std::vector<std::string>> &content, std::string name = "");
-    void write(std::vector<std::vector<Variable>> &content, std::string name = "");
+    //void write(std::vector<std::vector<std::string>> &content, std::string name = "");
+    void write(std::vector<std::vector<Variable>> &content, std::string meta,std::string name = "");
 //    void write(std::vector<std::vector<int>> &content);
-    void writeThread(std::vector<Variable> &content, std::string name = "");
 
     void errorOpeningFile();
 private:

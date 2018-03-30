@@ -89,35 +89,35 @@ void CSVReader::read(std::vector<std::vector<int>> &content) {
     csv.close();
 }
 
-void CSVReader::write(vector<vector<string>> &content, string name){
-    ofstream csv;
-    if(name.empty()){
-        ofstream csv(name);
-    }else{
-        struct timeval tv;
-        gettimeofday(&tv, NULL);
-        int sec = (int) tv.tv_sec;
-        int usec = (int) tv.tv_usec % 0x100000;
-        char newname[255];
-        sprintf(newname,"%08x%05x", sec, usec);
-        ofstream csv(newname);
-    }
+//void CSVReader::write(vector<vector<string>> &content, string name){
+//    ofstream csv;
+//    if(name.empty()){
+//        ofstream csv(name);
+//    }else{
+//        struct timeval tv;
+//        gettimeofday(&tv, NULL);
+//        int sec = (int) tv.tv_sec;
+//        int usec = (int) tv.tv_usec % 0x100000;
+//        char newname[255];
+//        sprintf(newname,"%08x%05x", sec, usec);
+//        ofstream csv(newname);
+//    }
 
-    for(unsigned int i = 0; i <content.size();i++){
-        for(unsigned int j = 0; j<content[i].size();j++){
-            csv << content[i][j];
-            if(j != (content[i].size())-1){
-                csv << ";";
-            }
-        }
-        csv << endl;
-    }
+//    for(unsigned int i = 0; i <content.size();i++){
+//        for(unsigned int j = 0; j<content[i].size();j++){
+//            csv << content[i][j];
+//            if(j != (content[i].size())-1){
+//                csv << ";";
+//            }
+//        }
+//        csv << endl;
+//    }
 
-    csv.flush();
-    csv.close();
-}
+//    csv.flush();
+//    csv.close();
+//}
 
-void CSVReader::write(vector<vector<Variable>> &content, string name){
+void CSVReader::write(vector<vector<Variable>> &content,string meta, string name){
     ofstream csv;
     if(!name.empty()){
         csv.open(name,ofstream::app);
@@ -131,8 +131,7 @@ void CSVReader::write(vector<vector<Variable>> &content, string name){
         csv.open(newname,ofstream::app);
     }
 
-
-    csv << "Name;Method;Quantité Maximum;Pt Commande/Période;1er Commande\n";
+    csv << "Name;Method;Quantité Maximum;Pt Commande/Période;1er Commande;Metaheuristique\n";
     csv.flush();
     for(unsigned int i = 0; i <content.size();i++){
         if(i+1<10){
@@ -144,20 +143,17 @@ void CSVReader::write(vector<vector<Variable>> &content, string name){
         for(unsigned int j = 0; j<content[i].size();j++){
             if(j == 0){
                 if(content[i][j].value == 0){
-                    csv << "ControlPoint";
+                    csv << "OrderPoint";
                 }else{
-                    csv << "Replenishement";
+                    csv << "Replenishment";
                 }
             }else{
                 csv << content[i][j].value;
             }
+            csv << ";";
             csv.flush();
-            if(j != (content[i].size())-1){
-                csv << ";";
-                csv.flush();
-            }
         }
-        csv << endl;
+        csv << meta << endl;
         csv.flush();
     }
 
