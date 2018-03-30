@@ -29,20 +29,20 @@ double tabou(Evaluateur env, vector<Variable> variables, int id = 0)
 
     int nbNotProgressing = 0;
 
-    while (i < 500)
+    while (i < 200)
     {
         i++;
         j = 0;
         newCurrent = -1;
 
         int stuckCount = 0;
-        while (j < 500)
+        while (j < 200)
         {
 
             if (stuckCount > 100)
             {
                 //Random walk
-                for (int k = 0; k < variables.size(); k++)
+                for (int k = 1; k < variables.size(); k++)
                 {
                     variables[k].randomise();
                 }
@@ -52,7 +52,7 @@ double tabou(Evaluateur env, vector<Variable> variables, int id = 0)
             int r = -1;
             if (indexDiff == -1)
             {
-                r = rand() % variables.size();
+                r = (rand() % (variables.size()-1)) +1;
                 variables[r].randomise();
             }
             else
@@ -124,10 +124,10 @@ double tabou(Evaluateur env, vector<Variable> variables, int id = 0)
         {
             nbNotProgressing++;
         }
-        if (nbNotProgressing >= 20)
+        if (nbNotProgressing >= 10)
         {
             //RandomWalk, we move from this solution, we are stuck
-            for (int k = 0; k < variables.size(); k++)
+            for (int k = 1; k < variables.size(); k++)
             {
                 variables[k].randomise();
             }
@@ -216,13 +216,12 @@ int main(int argc, const char *argv[])
     vector<vector<double>> content;
     vector<vector<Variable>> retour;
     csv.read(content);
-    int t = 0;
     double total = 0;
     
     vector<vector<Variable>> allSolutions;
-    for (vector<double> cont : content)
+    for (int t = 5 ; t < content.size() ; t++)
     {
-        t++;
+        vector<double> cont = content[t];
         cout << "LIGNE CSV " << t << endl;
         thread threads[8];
         for (int i = 0; i < 8; i++)
@@ -249,6 +248,8 @@ int main(int argc, const char *argv[])
                 env.setMedium();
             else if (i == 6 || i == 7)
                 env.setRisky();
+            
+            env.setMedium();
 
             threads[i] = thread(tabou, env, variables, i);
         }
@@ -288,23 +289,31 @@ int main(int argc, const char *argv[])
         }
         
         
+        for(int i = 0 ; i < 8 ; i++){
+            cout << "Value : " << solutions[i].first << endl;
+            for(int j = 0 ; j < solutions[i].second.size() ; j++){
+                cout << solutions[i].second[j].value << " ";
+            }
+            cout << endl;
+        }
         
         
         Evaluateur testeur(cont);
         testeur.setMedium();
         double result = testeur.evaluate(solutions[index].second);
         double diff = result - bestSolution;
-        cout << "Result " << result << " vs " << bestSolution << endl;
-        cout << "D : " <<  secondBest - bestSolution << " <= " << diff/2  << endl;
+        /*cout << "Result " << result << " vs " << bestSolution << endl;
+        cout << "Perte si choix 2 : " <<  secondBest - bestSolution << endl;
+        cout << "Perte potentiel : " << diff  << endl;
         
-        if (secondBest - bestSolution <= diff / 2){
-            cout << "Risk is not good for " << bestSolution << " vs " << secondBest << endl;
+        if (diff >= secondBest - bestSolution){
+            cout << "Risk is too important " << bestSolution << " vs " << secondBest << endl;
             bestSolution = secondBest;
             index = indexSecond;
         }
         else{
             cout << "Risk is valuable for " << bestSolution << " vs " << secondBest << endl;
-        }
+        }*/
         
         allSolutions.push_back(solutions[index].second);
         
@@ -318,7 +327,7 @@ int main(int argc, const char *argv[])
     cout << "Total Finale " << fixed << total << endl;
 
     
-    csv.write(allSolutions);
+    csv.write(allSolutions, "tabou");
    /* vector<Variable> variables;
     variables.push_back(Variable(0,0.9999,0));
     variables.push_back(Variable(1,10000,5081));
