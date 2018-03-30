@@ -9,11 +9,13 @@ using namespace std;
 
 double bestTabou = -1;
 
-vector<vector<vector<Variable>>> ltabou;
+
+pair<double, vector<Variable>> solutions[8];
+
 
 double tabou(Evaluateur env, vector<Variable> variables, int id = 0)
 {
-
+    vector<vector<Variable>> ltabou;
     double current = -1;
 
     int ltabouCmp = 0;
@@ -27,14 +29,14 @@ double tabou(Evaluateur env, vector<Variable> variables, int id = 0)
 
     int nbNotProgressing = 0;
 
-    while (i < 100)
+    while (i < 500)
     {
         i++;
         j = 0;
         newCurrent = -1;
 
         int stuckCount = 0;
-        while (j < 100)
+        while (j < 500)
         {
 
             if (stuckCount > 100)
@@ -62,20 +64,18 @@ double tabou(Evaluateur env, vector<Variable> variables, int id = 0)
             bool found = false;
             for (int k = 0; k < ltabou.size(); k++)
             {
-                for (int l = 0; l < ltabou[k].size(); l++)
+                double diff = 0;
+                for (int q = 0; q < ltabou[k].size(); q++)
                 {
-                    double diff = 0;
-                    for (int q = 0; q < ltabou[k][l].size(); q++)
-                    {
-                        diff += variables[q].compare(ltabou[k][l][q]);
-                    }
-                    if (diff <= 0.0001)
-                    {
-                        found = true;
-                        stuckCount++;
-                        break;
-                    }
+                    diff += variables[q].compare(ltabou[k][q]);
                 }
+                if (diff <= 0.0001)
+                {
+                    found = true;
+                    stuckCount++;
+                    break;
+                }
+                
 
                 if (found)
                     break;
@@ -102,11 +102,11 @@ double tabou(Evaluateur env, vector<Variable> variables, int id = 0)
         vector<Variable> v = variables;
         if (ltabou.size() < SIZE_LTABOU)
         {
-            //ltabou[id].push_back(v);
+            ltabou.push_back(v);
         }
         else
         {
-            ltabou[id][ltabouCmp] = v;
+            ltabou[ltabouCmp] = v;
         }
 
         ltabouCmp++;
@@ -135,14 +135,10 @@ double tabou(Evaluateur env, vector<Variable> variables, int id = 0)
         }
     }
 
-    for (int i = 0; i < bVariables.size(); i++)
-    {
-        cout << bVariables[i].value << " ";
-    }
-    cout << endl;
-    cout << "My best (" << id << ") is " << best << endl;
+    //cout << "My best (" << id << ") is " << best << endl;
     if (best < bestTabou || bestTabou == -1)
         bestTabou = best;
+    solutions[id] = make_pair(best, bVariables);
     return best;
 }
 
@@ -222,6 +218,8 @@ int main(int argc, const char *argv[])
     csv.read(content);
     int t = 0;
     double total = 0;
+    
+    vector<vector<Variable>> allSolutions;
     for (vector<double> cont : content)
     {
         t++;
@@ -232,12 +230,12 @@ int main(int argc, const char *argv[])
             vector<Variable> variables;
             if (i % 2) {
                 variables.push_back(Variable(0, 0.9999999));
-                variables.push_back(Variable(1, 5000000));
-                variables.push_back(Variable(1, 1000000));
+                variables.push_back(Variable(1, 10000));
+                variables.push_back(Variable(1, 10000));
             }
             else {
                 variables.push_back(Variable(1, 1.9999999));
-                variables.push_back(Variable(1, 5000000));
+                variables.push_back(Variable(1, 1000000));
                 variables.push_back(Variable(1, 261));
                 variables.push_back(Variable(1, 150));
             }
@@ -252,29 +250,75 @@ int main(int argc, const char *argv[])
             else if (i == 6 || i == 7)
                 env.setRisky();
 
-            vector<vector<Variable>> tmp;
-            for (int j = 0; j < SIZE_LTABOU; j++)
-            {
-                tmp.push_back(variables);
-            }
-            ltabou.push_back(tmp);
-
             threads[i] = thread(tabou, env, variables, i);
         }
         for (int i = 0; i < 8; i++)
         {
             threads[i].join();
         }
+        
+        double bestSolution = solutions[0].first;
+        int index = 0;
+        
+        double secondBest = solutions[1].first;
+        int indexSecond = 1;
+        
+        if(secondBest < bestSolution){
+            double tmp = bestSolution;
+            int tmpI = index;
+            bestSolution = secondBest;
+            index = indexSecond;
+            
+            indexSecond = tmpI;
+            secondBest = tmp;
+        }
+        
+        for(int i = 2 ; i < 8 ; i++){
+            if(solutions[i].first < bestSolution){
+                secondBest = bestSolution;
+                indexSecond = index;
+                index = i;
+                bestSolution = solutions[i].first;
+            }else{
+                if (solutions[i].first < secondBest){
+                    secondBest = solutions[i].first;
+                    indexSecond = i;
+                }
+            }
+        }
+        
+        
+        
+        
+        Evaluateur testeur(cont);
+        testeur.setMedium();
+        double result = testeur.evaluate(solutions[index].second);
+        double diff = result - bestSolution;
+        cout << "Result " << result << " vs " << bestSolution << endl;
+        cout << "D : " <<  secondBest - bestSolution << " <= " << diff/2  << endl;
+        
+        if (secondBest - bestSolution <= diff / 2){
+            cout << "Risk is not good for " << bestSolution << " vs " << secondBest << endl;
+            bestSolution = secondBest;
+            index = indexSecond;
+        }
+        else{
+            cout << "Risk is valuable for " << bestSolution << " vs " << secondBest << endl;
+        }
+        
+        allSolutions.push_back(solutions[index].second);
+        
+        cout << "Tabou : ";
 
-        cout << "Tabou : "; // << env->evaluate(variables);
-
-        cout << fixed << bestTabou;
+        cout << fixed << bestSolution;
         cout << endl;
         total += bestTabou;
         bestTabou = -1;
     }
     cout << "Total Finale " << fixed << total << endl;
 
+    
+    csv.write(allSolutions);
    /* vector<Variable> variables;
     variables.push_back(Variable(0,0.9999,0));
     variables.push_back(Variable(1,10000,5081));
