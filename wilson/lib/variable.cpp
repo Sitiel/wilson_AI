@@ -23,6 +23,16 @@ Variable::Variable(double lowerBound, double upperBound, double value) {
         randomise();
 }
 
+
+Variable::Variable(double value) {
+    this->lowerBound = 0;
+    this->upperBound = 0;
+    this->value = value;
+    this->entier = true;
+}
+
+
+
 void Variable::randomise() {
     previous = this->value;
     if(this->entier){
@@ -33,6 +43,7 @@ void Variable::randomise() {
 }
 
 void Variable::add(double value){
+    this->previous = this->value;
     this->value += value;
     if(this->value > upperBound)
         this->value = upperBound;
@@ -50,7 +61,6 @@ void Variable::revert(){
 
 void Variable::gaussianRandomise(double k) {
     previous = this->value;
-    std::default_random_engine generator;
     if(this->entier){
         std::normal_distribution<double> distribution(this->value,k);
         int generated = -1;

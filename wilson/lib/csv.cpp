@@ -44,6 +44,39 @@ void CSVReader::read(std::vector<std::vector<double>> &content) {
     csv.close();
 }
 
+void CSVReader::read(std::vector<std::vector<Variable>> &content) {
+    string line;
+    ifstream csv(filename);
+    
+    if(!csv.good()){
+        this->errorOpeningFile();
+    }
+    
+    getline(csv, line);
+    while (getline(csv, line))
+    {
+        istringstream iss(line);
+        string value;
+        vector<Variable> line;
+        getline(iss, value, ';');
+        while (getline(iss, value, ';')){
+            if(value.empty() || value.find("tabou") != string::npos || value.find("recuit") != string::npos || value.find("merge") != string::npos) continue;
+            if(value == "Replenishment"){
+                line.push_back(Variable(1));
+            }
+            else if(value == "OrderPoint"){
+                line.push_back(Variable(0));
+            }
+            else{
+                line.push_back(Variable(stod(value)));
+            }
+            
+        }
+        content.push_back(line);
+    }
+    csv.close();
+}
+
 void CSVReader::read(std::vector<std::vector<std::string>> &content) {
     string line;
     ifstream csv(filename);
@@ -153,6 +186,8 @@ void CSVReader::write(vector<vector<Variable>> &content,string meta, string name
             csv << ";";
             csv.flush();
         }
+        if(content[i].size() != 4)
+            csv << ";";
         csv << meta << endl;
         csv.flush();
     }

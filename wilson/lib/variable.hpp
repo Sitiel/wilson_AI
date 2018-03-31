@@ -9,10 +9,14 @@
 #ifndef variable_hpp
 #define variable_hpp
 
+#include <random>
+
 class Variable{
 public:
     Variable(double lowerBound, double upperBound, double value = -1);
+    Variable(double value = -1);
     void randomise();
+    
     void gaussianRandomise(double k);
     void revert();
     void removeEntierConstraint();
@@ -26,6 +30,7 @@ public:
 private:
     double previous;
     bool entier;
+    std::default_random_engine generator;
 };
 
 

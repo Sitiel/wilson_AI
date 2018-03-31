@@ -17,6 +17,7 @@ class CSVReader{
 public:
     CSVReader(std::string filename = "");
     void read(std::vector<std::vector<double>> &content);
+    void read(std::vector<std::vector<Variable>> &content);
     void read(std::vector<std::vector<std::string>> &content);
     void read(std::vector<std::vector<int>> &content);
 //    void write(std::vector<std::vector<double>> &content, std::string name = NULL);
