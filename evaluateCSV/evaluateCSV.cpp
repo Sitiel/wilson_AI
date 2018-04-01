@@ -20,7 +20,7 @@ double evaluateCSV(string name){
     CSVReader csv(name);
     vector<vector<Variable>> variables;
     csv.read(variables);
-    CSVReader csvConstants("./sample01-20productsEN.csv");
+    CSVReader csvConstants("./sample02-160productsEN.csv");
     vector<vector<double>> content;
     csvConstants.read(content);
     double score = 0;
@@ -50,7 +50,7 @@ void mergeCSV(vector<string> names, int mergeType){
         filename += "_" + names[i];
     }
     
-    CSVReader csvConstants("./sample01-20productsEN.csv");
+    CSVReader csvConstants("./sample02-160productsEN.csv");
     vector<vector<double>> content;
     csvConstants.read(content);
     vector<vector<Variable>> bestVariables;

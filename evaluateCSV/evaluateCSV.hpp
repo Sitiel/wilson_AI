@@ -10,6 +10,7 @@
 #define evaluateCSV_hpp
 
 #include <iostream>
+#include <string.h>
 
 double evaluateCSV(std::string name);
 #endif /* evaluateCSV_hpp */

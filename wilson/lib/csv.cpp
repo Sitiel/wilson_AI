@@ -60,7 +60,7 @@ void CSVReader::read(std::vector<std::vector<Variable>> &content) {
         vector<Variable> line;
         getline(iss, value, ';');
         while (getline(iss, value, ';')){
-            if(value.empty() || value.find("tabou") != string::npos || value.find("recuit") != string::npos || value.find("merge") != string::npos) continue;
+            if(value.empty() || value.find("tabou") != string::npos || value.find("recuit") != string::npos || value.find("merge") != string::npos || value.find("Recuit") != string::npos) continue;
             if(value == "Replenishment"){
                 line.push_back(Variable(1));
             }

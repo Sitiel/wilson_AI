@@ -123,12 +123,12 @@ int verifThread(){
     }
     return i;
 }
-
+/*
 int main() {
 
 
     int indiceThread = 0;
-    CSVReader csv("../../sample01-20productsEN.csv");
+    CSVReader csv("../../sample02-160productsEN.csv");
     vector<vector<double>> content;
     //vector<double> content;
 //    CSVReader csv("FNL.csv");
@@ -175,12 +175,12 @@ int main() {
             vector<Variable> variables;
             if (i>content.size()){
                 variables.push_back(Variable(1, 1.9999));
-                for(int i = 0 ; i < 2 ; i++){
+                for(int i = 0 ; i < 3 ; i++){
                     variables.push_back(Variable(1, 100000));
                 }
             }else{
                 variables.push_back(Variable(0, 0.9999));
-                for(int i = 0 ; i < 3 ; i++){
+                for(int i = 0 ; i < 2 ; i++){
                     variables.push_back(Variable(1, 100000));
                 }
             }
@@ -211,4 +211,4 @@ int main() {
     csv.write(retour,"Recuit");
 
     return 0;
-}
+}*/
