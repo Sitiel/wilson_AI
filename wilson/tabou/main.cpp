@@ -7,15 +7,14 @@
 
 using namespace std;
 
-double bestTabou = -1;
+
+pair<double, vector<Variable>> *solutions;
 
 
+bool parallelisedLines[8];
+thread threads[8];
 
-
-pair<double, vector<Variable>> solutions[8];
-
-
-double tabou(Evaluateur env, vector<Variable> variables, int id = 0)
+double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0)
 {
     srand(5);
     vector<vector<Variable>> ltabou;
@@ -32,31 +31,32 @@ double tabou(Evaluateur env, vector<Variable> variables, int id = 0)
 
     int nbNotProgressing = 0;
 
-    while (i < 100)
+    while (nbNotProgressing < 1000)
     {
+        
         i++;
         j = 0;
         newCurrent = -1;
-        
 
         int stuckCount = 0;
         while (j < 100)
         {
 
-            if (stuckCount > 50)
+            if (stuckCount > 100)
             {
                 //Random walk
                 for (int k = 1; k < variables.size(); k++)
                 {
                     variables[k].randomise();
                 }
+                newCurrent = env.evaluate(variables);
                 break;
             }
 
             int r = -1;
             if (indexDiff == -1)
             {
-                r = (rand() % (variables.size()-1)) +1;
+                r = (rand() % (variables.size()-1)) + 1;
                 variables[r].randomise();
             }
             else
@@ -73,7 +73,7 @@ double tabou(Evaluateur env, vector<Variable> variables, int id = 0)
                 {
                     diff += variables[q].compare(ltabou[k][q]);
                 }
-                if (diff <= 0.0001)
+                if (diff <= 0.000001)
                 {
                     found = true;
                     stuckCount++;
@@ -88,6 +88,7 @@ double tabou(Evaluateur env, vector<Variable> variables, int id = 0)
                 continue;
 
             double tmpEval = env.evaluate(variables);
+            
             if (tmpEval < newCurrent || newCurrent == -1)
             {
                 newCurrent = tmpEval;
@@ -128,21 +129,20 @@ double tabou(Evaluateur env, vector<Variable> variables, int id = 0)
         {
             nbNotProgressing++;
         }
-        if (nbNotProgressing >= 5)
+        if (nbNotProgressing > 100 && nbNotProgressing % 10 == 1)
         {
             //RandomWalk, we move from this solution, we are stuck
             for (int k = 1; k < variables.size(); k++)
             {
                 variables[k].randomise();
             }
-            nbNotProgressing = 0;
         }
     }
 
-    //cout << "My best (" << id << ") is " << best << endl;
-    if (best < bestTabou || bestTabou == -1)
-        bestTabou = best;
+    cout << "My best (" << id << ") is " << best << endl;
     solutions[id] = make_pair(best, bVariables);
+    parallelisedLines[core_id] = false;
+    threads[core_id].detach();
     return best;
 }
 
@@ -153,142 +153,89 @@ int main(int argc, const char *argv[])
 
     CSVReader csv("./sample01-20productsEN.csv");
     vector<vector<double>> content;
-    vector<vector<Variable>> retour;
     csv.read(content);
-    double total = 0;
     
-    vector<vector<Variable>> allSolutions;
-    for (int t = 0 ; t < content.size() ; t++)
+    solutions = new pair<double, vector<Variable>>[content.size() * 2];
+    
+    for(int i = 0 ; i < 8 ; i++){
+        parallelisedLines[i] = false;
+    }
+    
+    
+    for (int t = 0 ; t < content.size() ;)
     {
+        int freeCore = -1;
+        for(int j = 0 ; j < 8 ; j+=2){
+            if(!parallelisedLines[j] && !parallelisedLines[j+1]){
+                freeCore = j;
+                break;
+            }
+            
+        }
+        
+        if(freeCore == -1){
+            this_thread::sleep_for(chrono::seconds(10));
+            continue;
+        }
+        
+        
+        
+        parallelisedLines[freeCore] = true;
+        parallelisedLines[freeCore+1] = true;
         vector<double> cont = content[t];
-        cout << "LIGNE CSV " << t+1 << endl;
-        thread threads[8];
         
         double averageDemande = (cont[INITIAL_DEMANDE] + (cont[INITIAL_DEMANDE] + cont[INCREASE]*261))/2;
         
-        
         double minCommande = averageDemande/2;
         double maxCommande = averageDemande * cont[DELAY_LIVRAISON] * 1.5;
-        for (int i = 0; i < 8; i++)
-        {
-            vector<Variable> variables;
-            if (i % 2) {
-                
-                variables.push_back(Variable(0, 0.9999999));
-                variables.push_back(Variable(minCommande, maxCommande));
-                variables.push_back(Variable(minCommande, maxCommande));
-            }
-            else {
-                variables.push_back(Variable(1, 1.9999999));
-                variables.push_back(Variable(1, maxCommande));
-                variables.push_back(Variable(1, 261));
-                variables.push_back(Variable(1, 120));
-            }
-                
-            Evaluateur env = Evaluateur(cont);
-            if (i == 0 || i == 1)
-                env.setSafe();
-            else if (i == 2 || i == 3)
-                env.setRandom();
-            else if (i == 4 || i == 5)
-                env.setMedium();
-            else if (i == 6 || i == 7)
-                env.setRisky();
-            
-            env.setMedium();
+        
 
-            threads[i] = thread(tabou, env, variables, i);
+        vector<Variable> variablesOrderPoint, variablesReplenishment;
+        variablesOrderPoint.push_back(Variable(0, 0.9999999));
+        variablesOrderPoint.push_back(Variable(minCommande, maxCommande, 5781));
+        variablesOrderPoint.push_back(Variable(minCommande, maxCommande, 32195));
+        
+        variablesReplenishment.push_back(Variable(1, 1.9999999));
+        variablesReplenishment.push_back(Variable(1, maxCommande));
+        variablesReplenishment.push_back(Variable(1, 261));
+        variablesReplenishment.push_back(Variable(1, 120));
+        
+                
+        Evaluateur env = Evaluateur(cont);
+
+        env.setAverage(50);
+        
+        threads[freeCore] = thread(tabou, env, variablesOrderPoint, freeCore, t*2);
+        threads[freeCore+1] = thread(tabou, env, variablesReplenishment, freeCore+1, t*2+1);
+        cout << "Starting " << freeCore << " for " << t*2 << " and " << freeCore+1 << " for " << t*2 +1 << endl;
+        t++;
+    }
+    
+    for(int i = 0 ; i < 8 ;){
+        if(parallelisedLines[i]){
+            this_thread::sleep_for(chrono::seconds(10));
+            continue;
         }
-        for (int i = 0; i < 8; i++)
-        {
-            threads[i].join();
-        }
-        /*
-        
-        double bestSolution = solutions[0].first;
-        int index = 0;
-        
-        double secondBest = solutions[1].first;
-        int indexSecond = 1;
-        
-        if(secondBest < bestSolution){
-            double tmp = bestSolution;
-            int tmpI = index;
-            bestSolution = secondBest;
-            index = indexSecond;
-            
-            indexSecond = tmpI;
-            secondBest = tmp;
-        }
-        
-        for(int i = 2 ; i < 8 ; i++){
-            if(solutions[i].first < bestSolution){
-                secondBest = bestSolution;
-                indexSecond = index;
-                index = i;
-                bestSolution = solutions[i].first;
-            }else{
-                if (solutions[i].first < secondBest){
-                    secondBest = solutions[i].first;
-                    indexSecond = i;
-                }
-            }
-        }*/
-        
-        
-        for(int i = 0 ; i < 8 ; i++){
-            cout << "Value : " << solutions[i].first << " for solution " << i << endl;
-            for(int j = 0 ; j < solutions[i].second.size() ; j++){
-                cout << solutions[i].second[j].value << " ";
-            }
-            cout << endl;
-        }
-        
-        //TAKE THE BEST VERSUS THE RANDOM
-        Evaluateur testeur(cont);
-        testeur.setRandom();
-        int bestIndex = -1;
-        double currentBestVsRandom = 0;
-        
-        for(int i = 0 ; i < 8 ; i++){
-            //CALCULATE THE AVERAGE VS RANDOM
-            double result = 0;
-            for(int a = 0 ; a < 1000 ; a++){
-                result += testeur.evaluate(solutions[i].second);
-            }
-            result /= 1000;
-            if(result < currentBestVsRandom || bestIndex == -1){
-                currentBestVsRandom = result;
-                bestIndex = i;
-            }
-        }
-        cout << "Best versus random is solution " << bestIndex << " with " << fixed << currentBestVsRandom << endl;
-        /*
-        Evaluateur testeur(cont);
-        testeur.setMedium();
-        double result = testeur.evaluate(solutions[index].second);
-        double diff = result - bestSolution;
-        cout << "Result " << result << " vs " << bestSolution << endl;
-        cout << "Perte si choix 2 : " <<  secondBest - bestSolution << endl;
-        cout << "Perte potentiel : " << diff  << endl;
-        
-        if (diff >= secondBest - bestSolution){
-            cout << "Risk is too important " << bestSolution << " vs " << secondBest << endl;
-            bestSolution = secondBest;
-            index = indexSecond;
+        i++;
+    }
+    
+    vector<vector<Variable>> allSolutions;
+    
+    double total = 0;
+    
+    for(int i = 0 ; i < content.size() *2 ; i+=2){
+        if(solutions[i].first < solutions[i+1].first){
+            total += solutions[i].first;
+            allSolutions.push_back(solutions[i].second);
         }
         else{
-            cout << "Risk is valuable for " << bestSolution << " vs " << secondBest << endl;
-        }*/
-        
-        allSolutions.push_back(solutions[bestIndex].second);
-        
-        cout << "Tabou : ";
-
-        cout << fixed << currentBestVsRandom << endl;
-        total += currentBestVsRandom;
-        bestTabou = -1;
+            allSolutions.push_back(solutions[i+1].second);
+            total += solutions[i+1].first;
+        }
     }
+    
+    
+    
     cout << "Total Finale " << fixed << total << endl;
 
     

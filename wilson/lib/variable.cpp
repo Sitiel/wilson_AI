@@ -43,8 +43,8 @@ void Variable::randomise() {
 }
 
 void Variable::add(double value){
-    this->previous = this->value;
-    this->value += value;
+    this->previous = (int)this->value;
+    this->value += (int)value;
     if(this->value > upperBound)
         this->value = upperBound;
     if(this->value < lowerBound)

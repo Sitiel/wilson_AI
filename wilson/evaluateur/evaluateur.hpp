@@ -44,6 +44,7 @@ public:
     void setSafe();
     void setMedium();
     void setRandom();
+    void setAverage(int averageModeValue = 100);
     
     double variation();
 
@@ -58,6 +59,7 @@ private:
     double calculOrder(int day);
     void initDayToMonth();
     int riskMode;
+    int averageModeValue;
 };
 
 #endif /* Evaluateur */

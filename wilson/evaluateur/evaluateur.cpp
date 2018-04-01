@@ -16,6 +16,7 @@ Evaluateur::Evaluateur(vector<double> &constants)
     this->constants = constants;
     riskMode = RISK_SAFE;
     initDayToMonth();
+    averageModeValue = 1;
 }
 
 double Evaluateur::evaluate(std::vector<Variable *> &variables)
@@ -25,72 +26,86 @@ double Evaluateur::evaluate(std::vector<Variable *> &variables)
     return totalDelta;
 }
 
+void Evaluateur::setAverage(int averageModeValue){
+    riskMode = RISK_RANDOM;
+    this->averageModeValue = averageModeValue;
+}
+
 double Evaluateur::evaluate(vector<Variable> &variables)
 {
-    double totalCost = 0;
-    map<int, double> livraison;
-    this->state = this->constants;
-    this->state.push_back(state[STOCK]);
-
-    for (int i = 1; i < 262; i++)
-    {
+    double retour = 0;
+    for(int z = 0 ; z < averageModeValue ; z++){
+        double totalCost = 0;
+        map<int, double> livraison;
+        this->state = this->constants;
+        this->state.push_back(state[STOCK]);
         
-        /*if(livraison[i] > 0){
-            cout << "Livraison jour " << i << " de " << livraison[i] << endl;
-        }*/
-        this->state[STOCK] = (int)(state[STOCK] - calculOrder(i) + livraison[i]);
-        //cout << "Stock jour " << i << " : " << state[STOCK] << endl;
-        
-        this->state[VIRTUAL_STOCK] = (int)(state[VIRTUAL_STOCK] - calculOrder(i));
-        if (this->state[STOCK] < 0)
+        for (int i = 1; i < 262; i++)
         {
-            //cout << "Rupture Jour " << i << " de " << state[STOCK] << endl;
-            // Cas Rupture
-            totalCost += -state[STOCK] * constants[PURCHASE_PRICE] * constants[OUT_STOCK_PERCENT];
-            state[STOCK] = 0;
-        }
-        else
-        {
-            if (i % 5 == 0)
+            
+            /*if(livraison[i] > 0){
+             cout << "Livraison jour " << i << " de " << livraison[i] << endl;
+             }*/
+            this->state[STOCK] = (int)(state[STOCK] - calculOrder(i) + livraison[i]);
+            //cout << "Stock jour " << i << " : " << state[STOCK] << endl;
+            
+            this->state[VIRTUAL_STOCK] = (int)(state[VIRTUAL_STOCK] - calculOrder(i));
+            if (this->state[STOCK] < 0)
             {
-                //cout << "Stock Fin Semaine " << i << " de " << state[STOCK] << endl;
-                // Cas stockage Vendredi
-                totalCost += (state[STOCK] * constants[PURCHASE_PRICE] * constants[OWNERSHIP_RATE] * 3) / 365;
+                //cout << "Rupture Jour " << i << " de " << state[STOCK] << endl;
+                // Cas Rupture
+                totalCost += -state[STOCK] * constants[PURCHASE_PRICE] * constants[OUT_STOCK_PERCENT];
+                state[STOCK] = 0;
             }
             else
             {
-                //cout << "Stock " << i << " de " << state[STOCK] << endl;
-                // Cas stockage Semaine
-                totalCost += (state[STOCK] * constants[PURCHASE_PRICE] * constants[OWNERSHIP_RATE]) / 365;
+                if (i % 5 == 0)
+                {
+                    //cout << "Stock Fin Semaine " << i << " de " << state[STOCK] << endl;
+                    // Cas stockage Vendredi
+                    totalCost += (state[STOCK] * constants[PURCHASE_PRICE] * constants[OWNERSHIP_RATE] * 3) / 365;
+                }
+                else
+                {
+                    //cout << "Stock " << i << " de " << state[STOCK] << endl;
+                    // Cas stockage Semaine
+                    totalCost += (state[STOCK] * constants[PURCHASE_PRICE] * constants[OWNERSHIP_RATE]) / 365;
+                }
+            }
+            
+            //cout << "Total Cost " << i << " de " << totalCost << endl;
+            
+            double delivery = variables[0].value == 0 ? evaluatePointControle(variables, state) : evaluateRecomplete(variables, state, i);
+            
+            livraison[i + constants[DELAY_LIVRAISON]] = delivery;
+            state[VIRTUAL_STOCK] += delivery;
+            if (delivery > 0){
+                //cout << "Commande jour " << i << " de " << delivery << endl;
+                totalCost += constants[ORDER_COST];
             }
         }
-
-        //cout << "Total Cost " << i << " de " << totalCost << endl;
-        
-        double delivery = variables[0].value == 0 ? evaluatePointControle(variables, state) : evaluateRecomplete(variables, state, i);
-        
-        livraison[i + constants[DELAY_LIVRAISON]] = delivery;
-        state[VIRTUAL_STOCK] += delivery;
-        if (delivery > 0){
-            //cout << "Commande jour " << i << " de " << delivery << endl;
-            totalCost += constants[ORDER_COST];
-        }
+        retour += totalCost;
     }
+    
 
-    return totalCost;
+    return retour/averageModeValue;
 }
 
 void Evaluateur::setRisky(){
     this->riskMode = RISK_RISKY;
+    this->averageModeValue = 1;
 }
 void Evaluateur::setSafe(){
     this->riskMode = RISK_SAFE;
+    this->averageModeValue = 1;
 }
 void Evaluateur::setMedium(){
     this->riskMode = RISK_MEDIUM;
+    this->averageModeValue = 1;
 }
 void Evaluateur::setRandom(){
     this->riskMode = RISK_RANDOM;
+    this->averageModeValue = 1;
 }
 
 double Evaluateur::evaluatePointControle(std::vector<Variable> &variables, std::vector<double> state)
