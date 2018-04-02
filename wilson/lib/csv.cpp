@@ -44,6 +44,51 @@ void CSVReader::read(std::vector<std::vector<double>> &content) {
     csv.close();
 }
 
+void CSVReader::read(std::vector<pair<std::vector<Variable>, string>> &content) {
+    string line;
+    ifstream csv(filename);
+    
+    if(!csv.good()){
+        this->errorOpeningFile();
+    }
+    
+    getline(csv, line);
+    while (getline(csv, line))
+    {
+        istringstream iss(line);
+        string value;
+        vector<Variable> line;
+        getline(iss, value, ';');
+        string type = "merge";
+        while (getline(iss, value, ';')){
+            if(value.empty() || value.find("merge") != string::npos){
+                continue;
+            }
+            if(value.find("tabou") != string::npos){
+                type = value;
+                continue;
+            }
+            if(value.find("recuit") != string::npos || value.find("Recuit") != string::npos){
+                type = value;
+                continue;
+            }
+            if(value == "Replenishment"){
+                line.push_back(Variable(1));
+            }
+            else if(value == "OrderPoint"){
+                line.push_back(Variable(0));
+            }
+            else{
+                line.push_back(Variable(stod(value)));
+            }
+            
+        }
+        content.push_back(make_pair(line, type));
+    }
+    csv.close();
+}
+
+
 void CSVReader::read(std::vector<std::vector<Variable>> &content) {
     string line;
     ifstream csv(filename);
@@ -59,8 +104,19 @@ void CSVReader::read(std::vector<std::vector<Variable>> &content) {
         string value;
         vector<Variable> line;
         getline(iss, value, ';');
+        string type = "merge";
         while (getline(iss, value, ';')){
-            if(value.empty() || value.find("tabou") != string::npos || value.find("recuit") != string::npos || value.find("merge") != string::npos || value.find("Recuit") != string::npos) continue;
+            if(value.empty() || value.find("merge") != string::npos){
+                continue;
+            }
+            if(value.find("tabou") != string::npos){
+                type = value;
+                continue;
+            }
+            if(value.find("recuit") != string::npos || value.find("Recuit") != string::npos){
+                type = value;
+                continue;
+            }
             if(value == "Replenishment"){
                 line.push_back(Variable(1));
             }
@@ -76,6 +132,7 @@ void CSVReader::read(std::vector<std::vector<Variable>> &content) {
     }
     csv.close();
 }
+
 
 void CSVReader::read(std::vector<std::vector<std::string>> &content) {
     string line;
@@ -149,6 +206,51 @@ void CSVReader::read(std::vector<std::vector<int>> &content) {
 //    csv.flush();
 //    csv.close();
 //}
+
+void CSVReader::write(std::vector<std::pair<std::vector<Variable>, std::string>> &content, std::string name){
+    ofstream csv;
+    if(!name.empty()){
+        csv.open(name,ofstream::app);
+    }else{
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        int sec = (int) tv.tv_sec;
+        int usec = (int) tv.tv_usec % 0x100000;
+        char newname[255];
+        sprintf(newname,"%08x%05x.csv", sec, usec);
+        csv.open(newname,ofstream::app);
+    }
+    
+    csv << "Name;Method;Quantité Maximum;Pt Commande/Période;1er Commande;Metaheuristique\n";
+    csv.flush();
+    for(unsigned int i = 0; i <content.size();i++){
+        if(i+1<10){
+            csv << "A0"<< i+1 << ";";
+        }else{
+            csv << "A" << i+1 << ";";
+        }
+        csv.flush();
+        for(unsigned int j = 0; j<content[i].first.size();j++){
+            if(j == 0){
+                if(content[i].first[j].value == 0){
+                    csv << "OrderPoint";
+                }else{
+                    csv << "Replenishment";
+                }
+            }else{
+                csv << content[i].first[j].value;
+            }
+            csv << ";";
+            csv.flush();
+        }
+        if(content[i].first.size() != 4)
+            csv << ";";
+        csv << content[i].second << endl;
+        csv.flush();
+    }
+    
+    csv.close();
+}
 
 void CSVReader::write(vector<vector<Variable>> &content,string meta, string name){
     ofstream csv;

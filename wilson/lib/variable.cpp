@@ -31,7 +31,10 @@ Variable::Variable(double value) {
     this->entier = true;
 }
 
-
+void Variable::rebound(double lowerBound, double upperBound){
+    this->lowerBound = lowerBound;
+    this->upperBound = upperBound;
+}
 
 void Variable::randomise() {
     previous = this->value;
@@ -87,6 +90,13 @@ double Variable::compare(Variable &b) {
 
 double Variable::compare(Variable *b) { 
     return  (abs(value - b->value)) / (upperBound);
+}
+
+bool Variable::isEqual(Variable &b){
+    return (int)value == (int)b.value;
+}
+bool Variable::isEqual(Variable *b){
+    return (int)value == (int)b->value;
 }
 
 void Variable::removeEntierConstraint(){

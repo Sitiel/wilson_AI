@@ -3,7 +3,7 @@
 #include "../evaluateur/evaluateur.hpp"
 #include <thread>
 
-#define SIZE_LTABOU 10
+#define SIZE_LTABOU 10000
 
 using namespace std;
 
@@ -42,7 +42,7 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
         while (j < 100)
         {
 
-            if (stuckCount > 100)
+            if (stuckCount > 1000)
             {
                 //Random walk
                 for (int k = 1; k < variables.size(); k++)
@@ -50,6 +50,7 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
                     variables[k].randomise();
                 }
                 newCurrent = env.evaluate(variables);
+                nbNotProgressing++;
                 break;
             }
 
@@ -68,24 +69,25 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
             bool found = false;
             for (int k = 0; k < ltabou.size(); k++)
             {
-                double diff = 0;
+                found = true;
                 for (int q = 0; q < ltabou[k].size(); q++)
                 {
-                    diff += variables[q].compare(ltabou[k][q]);
+                    if(!variables[q].isEqual(ltabou[k][q]))
+                    {
+                        found = false;
+                        break;
+                    }
                 }
-                if (diff <= 0.000001)
+                if (found)
                 {
-                    found = true;
                     stuckCount++;
                     break;
                 }
                 
-
-                if (found)
-                    break;
             }
             if (found)
                 continue;
+            
 
             double tmpEval = env.evaluate(variables);
             
@@ -129,7 +131,7 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
         {
             nbNotProgressing++;
         }
-        if (nbNotProgressing > 100 && nbNotProgressing % 10 == 1)
+        if (nbNotProgressing > 200 && nbNotProgressing % 200 == 1)
         {
             //RandomWalk, we move from this solution, we are stuck
             for (int k = 1; k < variables.size(); k++)
@@ -151,7 +153,7 @@ int main(int argc, const char *argv[])
 {
     srand(5);
 
-    CSVReader csv("./sample01-20productsEN.csv");
+    CSVReader csv("./sample02-160productsEN.csv");
     vector<vector<double>> content;
     csv.read(content);
     
@@ -161,12 +163,19 @@ int main(int argc, const char *argv[])
         parallelisedLines[i] = false;
     }
     
+    vector<vector<Variable>> starter;
     
-    for (int t = 0 ; t < content.size() ;)
+    if(argc == 2){
+        CSVReader csv(argv[1]);
+        csv.read(starter);
+    }
+    
+    
+    for (int t = 0 ; t < content.size()*2 ;)
     {
         int freeCore = -1;
-        for(int j = 0 ; j < 8 ; j+=2){
-            if(!parallelisedLines[j] && !parallelisedLines[j+1]){
+        for(int j = 0 ; j < 8 ; j++){
+            if(!parallelisedLines[j]){
                 freeCore = j;
                 break;
             }
@@ -181,34 +190,52 @@ int main(int argc, const char *argv[])
         
         
         parallelisedLines[freeCore] = true;
-        parallelisedLines[freeCore+1] = true;
-        vector<double> cont = content[t];
+        int line = t/2;
+        vector<double> cont = content[line];
+        
         
         double averageDemande = (cont[INITIAL_DEMANDE] + (cont[INITIAL_DEMANDE] + cont[INCREASE]*261))/2;
-        
-        double minCommande = averageDemande/2;
-        double maxCommande = averageDemande * cont[DELAY_LIVRAISON] * 1.5;
-        
-
-        vector<Variable> variablesOrderPoint, variablesReplenishment;
-        variablesOrderPoint.push_back(Variable(0, 0.9999999));
-        variablesOrderPoint.push_back(Variable(minCommande, maxCommande, 5781));
-        variablesOrderPoint.push_back(Variable(minCommande, maxCommande, 32195));
-        
-        variablesReplenishment.push_back(Variable(1, 1.9999999));
-        variablesReplenishment.push_back(Variable(1, maxCommande));
-        variablesReplenishment.push_back(Variable(1, 261));
-        variablesReplenishment.push_back(Variable(1, 120));
-        
+        double minCommande = 100;
+        double maxCommande = 15000;
+        //double minCommande = averageDemande/2;
+        //double maxCommande = averageDemande * cont[DELAY_LIVRAISON] * 1.5;
+        vector<Variable> variables;
+        if(argc != 2){
+            
+            if(t % 2){
+                variables.push_back(Variable(1, 1.9999999));
+                variables.push_back(Variable(minCommande, maxCommande));
+                variables.push_back(Variable(1, 261));
+                variables.push_back(Variable(1, 120));
+            }
+            else{
+                variables.push_back(Variable(0, 0.9999999));
+                variables.push_back(Variable(minCommande, maxCommande));
+                variables.push_back(Variable(minCommande, maxCommande));
+            }
+        }
+        else{
+            variables = starter[t/2];
+            if(variables[0].value < 1){
+                variables[1].rebound(minCommande, maxCommande);
+                variables[2].rebound(minCommande, maxCommande);
+            }
+            else{
+                variables[1].rebound(minCommande, maxCommande);
+                variables[2].rebound(1, 261);
+                variables[3].rebound(1, 120);
+            }
+        }
                 
         Evaluateur env = Evaluateur(cont);
 
-        env.setAverage(50);
-        
-        threads[freeCore] = thread(tabou, env, variablesOrderPoint, freeCore, t*2);
-        threads[freeCore+1] = thread(tabou, env, variablesReplenishment, freeCore+1, t*2+1);
-        cout << "Starting " << freeCore << " for " << t*2 << " and " << freeCore+1 << " for " << t*2 +1 << endl;
+        //env.setAverage(50);
+        env.setMedium();
+        threads[freeCore] = thread(tabou, env, variables, freeCore, t);
+        cout << "Starting " << freeCore << " for " << t << endl;
         t++;
+        if(argc == 2)
+            t++;
     }
     
     for(int i = 0 ; i < 8 ;){
@@ -223,17 +250,24 @@ int main(int argc, const char *argv[])
     
     double total = 0;
     
-    for(int i = 0 ; i < content.size() *2 ; i+=2){
-        if(solutions[i].first < solutions[i+1].first){
-            total += solutions[i].first;
+    if(argc == 2){
+        for(int i = 0 ; i < content.size() * 2 ; i+=2){
             allSolutions.push_back(solutions[i].second);
-        }
-        else{
-            allSolutions.push_back(solutions[i+1].second);
-            total += solutions[i+1].first;
+            total += solutions[i].first;
         }
     }
-    
+    else{
+        for(int i = 0 ; i < content.size() *2 ; i+=2){
+            if(solutions[i].first < solutions[i+1].first){
+                total += solutions[i].first;
+                allSolutions.push_back(solutions[i].second);
+            }
+            else{
+                allSolutions.push_back(solutions[i+1].second);
+                total += solutions[i+1].first;
+            }
+        }
+    }
     
     
     cout << "Total Finale " << fixed << total << endl;
