@@ -16,12 +16,15 @@ public:
     Variable(double lowerBound, double upperBound, double value = -1);
     Variable(double value = -1);
     void randomise();
+    void rebound(double lowerBound, double upperBound);
     
     void gaussianRandomise(double k);
     void revert();
     void removeEntierConstraint();
     double compare(Variable &b);
     double compare(Variable *b);
+    bool isEqual(Variable &b);
+    bool isEqual(Variable *b);
     void add(double value);
     double calculDiff();
     double value;

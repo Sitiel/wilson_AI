@@ -154,6 +154,9 @@ double Evaluateur::variation(){
     if(riskMode == RISK_RISKY){
         return -constants[VARIATION]/2;
     }
+    if(constants[VARIATION] == 0){
+        return 0;
+    }
     return (rand()% (int)(constants[VARIATION]*2)) - constants[VARIATION];
 }
 

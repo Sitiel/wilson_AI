@@ -18,9 +18,9 @@ using namespace std;
 
 double evaluateCSV(string name){
     CSVReader csv(name);
-    vector<vector<Variable>> variables;
+    vector<pair<vector<Variable>, string>> variables;
     csv.read(variables);
-    CSVReader csvConstants("./sample01-20productsEN.csv");
+    CSVReader csvConstants("./sample02-160productsEN.csv");
     vector<vector<double>> content;
     csvConstants.read(content);
     double score = 0;
@@ -29,7 +29,7 @@ double evaluateCSV(string name){
         for(int a = 0 ; a < 100 ; a++){
             Evaluateur env(content[i]);
             env.setRandom();
-            lineScore += env.evaluate(variables[i]);
+            lineScore += env.evaluate(variables[i].first);
         }
         score += (lineScore/100);
         cout << "Le score moyen de la ligne " << i+1 << " est " << fixed << lineScore/100 << endl;
@@ -40,20 +40,20 @@ double evaluateCSV(string name){
 }
 
 void mergeCSV(vector<string> names, int mergeType){
-    vector<vector<vector<Variable>>> variables;
+    vector<vector<pair<vector<Variable>, string>>> variables;
     string filename = "merge";
     for(int i = 0 ; i < names.size() ; i++){
-        vector<vector<Variable>> v;
+        vector<pair<vector<Variable>, string>> v;
         CSVReader csv(names[i]);
         csv.read(v);
         variables.push_back(v);
         filename += "_" + names[i];
     }
     
-    CSVReader csvConstants("./sample01-20productsEN.csv");
+    CSVReader csvConstants("./sample02-160productsEN.csv");
     vector<vector<double>> content;
     csvConstants.read(content);
-    vector<vector<Variable>> bestVariables;
+    vector<pair<vector<Variable>, string>> bestVariables;
     
     for(int i = 0 ; i < content.size() ; i++){
         vector<double> scoreVariables;
@@ -62,7 +62,7 @@ void mergeCSV(vector<string> names, int mergeType){
             for(int a = 0 ; a < 100 ; a++){
                 Evaluateur env(content[i]);
                 env.setRandom();
-                score += env.evaluate(variables[j][i]);
+                score += env.evaluate(variables[j][i].first);
             }
             cout << "Score of line " << i << " for file " << names[j] << " : " << score/100 << endl;
             scoreVariables.push_back(score / 100);
@@ -81,7 +81,7 @@ void mergeCSV(vector<string> names, int mergeType){
     }
     
     CSVReader csv;
-    csv.write(bestVariables, "merge", filename);
+    csv.write(bestVariables, filename);
     cout << "Files merged" << endl;
     
     

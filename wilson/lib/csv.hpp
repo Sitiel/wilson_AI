@@ -12,17 +12,20 @@
 #include <iostream>
 #include <vector>
 #include "variable.hpp"
+#include <string>
 
 class CSVReader{
 public:
     CSVReader(std::string filename = "");
     void read(std::vector<std::vector<double>> &content);
+    void read(std::vector<std::pair<std::vector<Variable>, std::string>> &content);
     void read(std::vector<std::vector<Variable>> &content);
     void read(std::vector<std::vector<std::string>> &content);
     void read(std::vector<std::vector<int>> &content);
 //    void write(std::vector<std::vector<double>> &content, std::string name = NULL);
     //void write(std::vector<std::vector<std::string>> &content, std::string name = "");
     void write(std::vector<std::vector<Variable>> &content, std::string meta,std::string name = "");
+    void write(std::vector<std::pair<std::vector<Variable>, std::string>> &content, std::string name = "");
 //    void write(std::vector<std::vector<int>> &content);
 
     void errorOpeningFile();
