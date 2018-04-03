@@ -84,11 +84,13 @@ double Evaluateur::evaluate(vector<Variable> &variables)
                 totalCost += constants[ORDER_COST];
             }
         }
-        retour += totalCost;
+        if(totalCost > retour)
+            retour = totalCost;
+        totalCost = 0;
     }
     
 
-    return retour/averageModeValue;
+    return retour;
 }
 
 void Evaluateur::setRisky(){
@@ -162,7 +164,7 @@ double Evaluateur::variation(){
 
 double Evaluateur::calculOrder(int day)
 {
-    double res = ((this->constants[INITIAL_DEMANDE] + (day * this->constants[INCREASE]))+ variation()) * (dayToMonth[day] == constants[MONTH_SAISONALITY] ? 1 + constants[PERCENT_OF_SAISONALITY] : 1) ;
+    double res = ((this->constants[INITIAL_DEMANDE] + (day * this->constants[INCREASE]))+ variation()) * (dayToMonth[day] == constants[MONTH_SAISONALITY] ? 1 + constants[PERCENT_OF_SAISONALITY] : 1);
     return res;
 }
 

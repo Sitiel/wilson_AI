@@ -24,15 +24,20 @@ double evaluateCSV(string name){
     vector<vector<double>> content;
     csvConstants.read(content);
     double score = 0;
+    double max = 0;
     for(int i = 0 ; i < content.size() ; i++){
         double lineScore = 0;
         for(int a = 0 ; a < 100 ; a++){
             Evaluateur env(content[i]);
             env.setRandom();
-            lineScore += env.evaluate(variables[i]);
+            lineScore = env.evaluate(variables[i]);
+            if(lineScore > max){
+                max = lineScore;
+            }
         }
-        score += (lineScore/100);
-        cout << "Le score moyen de la ligne " << i+1 << " est " << fixed << lineScore/100 << endl;
+        score += max;
+        cout << "Le score moyen de la ligne " << i+1 << " est " << fixed << max << endl;
+        max = 0;
     }
 
 
@@ -62,10 +67,13 @@ void mergeCSV(vector<string> names, int mergeType){
             for(int a = 0 ; a < 100 ; a++){
                 Evaluateur env(content[i]);
                 env.setRandom();
-                score += env.evaluate(variables[j][i]);
+                double tmp = env.evaluate(variables[j][i]);
+                if(tmp > score){
+                    score = tmp;
+                }
             }
-            cout << "Score of line " << i << " for file " << names[j] << " : " << score/100 << endl;
-            scoreVariables.push_back(score / 100);
+            cout << "Score of line " << i << " for file " << names[j] << " : " << score << endl;
+            scoreVariables.push_back(score);
         }
         double minScore = -1;
         int minIndex = -1;

@@ -84,6 +84,15 @@ void Variable::gaussianRandomise(double k) {
 
 }
 
+
+void Variable::randomise(double modifPercent){
+    previous = value;
+    int randMax = (int)((upperBound - lowerBound)* modifPercent);
+    value +=  (rand() % randMax)  * 2 - randMax;
+    if(value > upperBound) value = upperBound;
+    if(value < lowerBound) value = lowerBound;
+}
+
 double Variable::compare(Variable &b) {
     return  (abs(value - b.value)) / (upperBound);
 }

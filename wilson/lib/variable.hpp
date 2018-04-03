@@ -16,6 +16,7 @@ public:
     Variable(double lowerBound, double upperBound, double value = -1);
     Variable(double value = -1);
     void randomise();
+    void randomise(double modifPercent);
     void rebound(double lowerBound, double upperBound);
     
     void gaussianRandomise(double k);

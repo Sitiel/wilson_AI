@@ -19,9 +19,10 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
     srand(5);
     vector<vector<Variable>> ltabou;
     double current = -1;
+    double progression = 1;
 
     int ltabouCmp = 0;
-    double best = -1;
+    double best = env.evaluate(variables);
     int i = 0, j = 0;
     vector<Variable> bVariables;
     double newCurrent;
@@ -31,15 +32,17 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
 
     int nbNotProgressing = 0;
 
-    while (nbNotProgressing < 1000)
+    while (nbNotProgressing < 100)
     {
         
         i++;
         j = 0;
         newCurrent = -1;
+        
+        progression *= 0.999;
 
         int stuckCount = 0;
-        while (j < 100)
+        while (j < 10)
         {
 
             if (stuckCount > 1000)
@@ -49,6 +52,7 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
                 {
                     variables[k].randomise();
                 }
+                progression = 1;
                 newCurrent = env.evaluate(variables);
                 nbNotProgressing++;
                 break;
@@ -58,7 +62,7 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
             if (indexDiff == -1)
             {
                 r = (rand() % (variables.size()-1)) + 1;
-                variables[r].randomise();
+                variables[r].randomise(progression);
             }
             else
             {
@@ -138,6 +142,7 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
             {
                 variables[k].randomise();
             }
+            progression = 1;
         }
     }
 
@@ -170,7 +175,6 @@ int main(int argc, const char *argv[])
         csv.read(starter);
     }
     
-    
     for (int t = 0 ; t < content.size()*2 ;)
     {
         int freeCore = -1;
@@ -187,25 +191,32 @@ int main(int argc, const char *argv[])
             continue;
         }
         
-        
-        
         parallelisedLines[freeCore] = true;
         int line = t/2;
         vector<double> cont = content[line];
         
+        Evaluateur env = Evaluateur(cont);
+        
         
         double averageDemande = (cont[INITIAL_DEMANDE] + (cont[INITIAL_DEMANDE] + cont[INCREASE]*261))/2;
-        double minCommande = 100;
-        double maxCommande = 15000;
+        /*double minCommande = 100;
+        double maxCommande = 15000;*/
         //double minCommande = averageDemande/2;
         //double maxCommande = averageDemande * cont[DELAY_LIVRAISON] * 1.5;
+        double minCommande = (int)(env.calcCommandeWilson()/3);
+        double maxCommande = (int)(env.calcCommandeWilson()*3);
+        
+        double minPeriode = (int)(env.calcPeriodiciteWilson()/3);
+        double maxPeriode = (int)(env.calcPeriodiciteWilson()*3);
+        
         vector<Variable> variables;
         if(argc != 2){
             
             if(t % 2){
                 variables.push_back(Variable(1, 1.9999999));
-                variables.push_back(Variable(minCommande, maxCommande));
-                variables.push_back(Variable(1, 261));
+                
+                variables.push_back(Variable(minCommande,maxCommande));
+                variables.push_back(Variable(minPeriode, maxPeriode));
                 variables.push_back(Variable(1, 120));
             }
             else{
@@ -222,15 +233,16 @@ int main(int argc, const char *argv[])
             }
             else{
                 variables[1].rebound(minCommande, maxCommande);
-                variables[2].rebound(1, 261);
+                variables[2].rebound(minPeriode, maxPeriode);
                 variables[3].rebound(1, 120);
             }
         }
-                
-        Evaluateur env = Evaluateur(cont);
+        
 
-        //env.setAverage(50);
-        env.setMedium();
+        env.setAverage(10);
+        //env.setMedium();
+        
+        
         threads[freeCore] = thread(tabou, env, variables, freeCore, t);
         cout << "Starting " << freeCore << " for " << t << endl;
         t++;
