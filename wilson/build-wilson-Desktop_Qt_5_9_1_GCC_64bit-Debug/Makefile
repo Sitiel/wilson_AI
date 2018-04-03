@@ -53,13 +53,11 @@ OBJECTS_DIR   = ./
 SOURCES       = ../lib/csv.cpp \
 		../lib/variable.cpp \
 		../recuitSimule/main.cpp \
-		../evaluateur/evaluateur.cpp \
-		../../evaluateCSV/evaluateCSV.cpp 
+		../evaluateur/evaluateur.cpp 
 OBJECTS       = csv.o \
 		variable.o \
 		main.o \
-		evaluateur.o \
-		evaluateCSV.o
+		evaluateur.o
 DIST          = /home/imerir/Qt5.9.1/5.9.1/gcc_64/mkspecs/features/spec_pre.prf \
 		/home/imerir/Qt5.9.1/5.9.1/gcc_64/mkspecs/common/unix.conf \
 		/home/imerir/Qt5.9.1/5.9.1/gcc_64/mkspecs/common/linux.conf \
@@ -236,12 +234,10 @@ DIST          = /home/imerir/Qt5.9.1/5.9.1/gcc_64/mkspecs/features/spec_pre.prf 
 		../wilson/wilson.pro ../lib/csv.hpp \
 		../lib/environnement.hpp \
 		../lib/variable.hpp \
-		../evaluateur/evaluateur.hpp \
-		../../evaluateCSV/evaluateCSV.hpp ../lib/csv.cpp \
+		../evaluateur/evaluateur.hpp ../lib/csv.cpp \
 		../lib/variable.cpp \
 		../recuitSimule/main.cpp \
-		../evaluateur/evaluateur.cpp \
-		../../evaluateCSV/evaluateCSV.cpp
+		../evaluateur/evaluateur.cpp
 QMAKE_TARGET  = wilson
 DESTDIR       = 
 TARGET        = wilson
@@ -661,12 +657,6 @@ main.o: ../recuitSimule/main.cpp ../performances.hpp \
 evaluateur.o: ../evaluateur/evaluateur.cpp ../evaluateur/evaluateur.hpp \
 		../lib/variable.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o evaluateur.o ../evaluateur/evaluateur.cpp
-
-evaluateCSV.o: ../../evaluateCSV/evaluateCSV.cpp ../../evaluateCSV/evaluateCSV.hpp \
-		../evaluateur/evaluateur.hpp \
-		../lib/variable.hpp \
-		../lib/csv.hpp
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o evaluateCSV.o ../../evaluateCSV/evaluateCSV.cpp
 
 ####### Install
 

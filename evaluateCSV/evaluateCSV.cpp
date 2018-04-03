@@ -18,7 +18,7 @@ using namespace std;
 
 double evaluateCSV(string name){
     CSVReader csv(name);
-    vector<pair<vector<Variable>, string>> variables;
+    vector<vector<Variable>> variables;
     csv.read(variables);
     CSVReader csvConstants("./sample02-160productsEN.csv");
     vector<vector<double>> content;
@@ -29,32 +29,32 @@ double evaluateCSV(string name){
         for(int a = 0 ; a < 100 ; a++){
             Evaluateur env(content[i]);
             env.setRandom();
-            lineScore += env.evaluate(variables[i].first);
+            lineScore += env.evaluate(variables[i]);
         }
         score += (lineScore/100);
         cout << "Le score moyen de la ligne " << i+1 << " est " << fixed << lineScore/100 << endl;
     }
 
-    
+
     return score;
 }
 
 void mergeCSV(vector<string> names, int mergeType){
-    vector<vector<pair<vector<Variable>, string>>> variables;
+    vector<vector<vector<Variable>>> variables;
     string filename = "merge";
     for(int i = 0 ; i < names.size() ; i++){
-        vector<pair<vector<Variable>, string>> v;
+        vector<vector<Variable>> v;
         CSVReader csv(names[i]);
         csv.read(v);
         variables.push_back(v);
         filename += "_" + names[i];
     }
-    
+
     CSVReader csvConstants("./sample02-160productsEN.csv");
     vector<vector<double>> content;
     csvConstants.read(content);
-    vector<pair<vector<Variable>, string>> bestVariables;
-    
+    vector<vector<Variable>> bestVariables;
+
     for(int i = 0 ; i < content.size() ; i++){
         vector<double> scoreVariables;
         for(int j = 0 ; j < variables.size() ; j++){
@@ -62,7 +62,7 @@ void mergeCSV(vector<string> names, int mergeType){
             for(int a = 0 ; a < 100 ; a++){
                 Evaluateur env(content[i]);
                 env.setRandom();
-                score += env.evaluate(variables[j][i].first);
+                score += env.evaluate(variables[j][i]);
             }
             cout << "Score of line " << i << " for file " << names[j] << " : " << score/100 << endl;
             scoreVariables.push_back(score / 100);
@@ -75,16 +75,16 @@ void mergeCSV(vector<string> names, int mergeType){
                 minScore = scoreVariables[x];
             }
         }
-        
+
         cout << "Best for line " << i+1 << " is " << fixed << minScore << endl;
         bestVariables.push_back(variables[minIndex][i]);
     }
-    
+
     CSVReader csv;
-    csv.write(bestVariables, filename);
+    csv.write(bestVariables, "merge", filename);
     cout << "Files merged" << endl;
-    
-    
+
+
 }
 
 
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]){
         cout << "Erreur veuillez passer des fichiers en paramétre" << endl;
         exit(0);
     }
-    
+
     if(strcmp(argv[1], "aleamerge") == 0){
         vector<string> names;
         for(int i = 2 ; i < argc ; i++){
@@ -102,14 +102,14 @@ int main(int argc, char *argv[]){
         mergeCSV(names, 1);
         exit(0);
     }
-    
+
     if(argc == 2){
         cout << "CSV : " << argv[1] << endl;
         double score = evaluateCSV(argv[1]);
         cout << "Total score is " << fixed << score << endl;
         exit(0);
     }
-    
+
     for(int i = 1 ; i < argc ; i++){
         cout << "CSV : " << argv[i] << endl;
         double score = evaluateCSV(argv[i]);

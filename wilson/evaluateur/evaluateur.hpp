@@ -46,6 +46,10 @@ public:
     void setRandom();
     void setAverage(int averageModeValue = 100);
     
+    double prodAnnee();
+    double calcCommandeWilson();
+    double calcPeriodiciteWilson();
+    double minDayBeforeRupture();
     double variation();
 
     double evaluatePointControle(std::vector<Variable>& variables, std::vector<double> state);

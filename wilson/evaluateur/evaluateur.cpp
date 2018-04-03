@@ -215,4 +215,35 @@ void Evaluateur::initDayToMonth() {
     {
         dayToMonth[i] = 12;
     }
+
+}
+
+double Evaluateur::prodAnnee(){
+
+    double total = 0;
+    for(int day = 0; day<262; day++){
+        total+=calculOrder(day);
+    }
+    return 20000;
+
+}
+
+double Evaluateur::calcCommandeWilson(){
+    double N = prodAnnee();
+    return (sqrt((2*N*this->constants[ORDER_COST])/(this->constants[PURCHASE_PRICE]*this->constants[OWNERSHIP_RATE])));
+}
+
+double Evaluateur::calcPeriodiciteWilson(){
+    double N = prodAnnee();
+    double nbCommandeAnnee = calcCommandeWilson();
+    return 261/(N/nbCommandeAnnee);
+}
+
+double Evaluateur::minDayBeforeRupture(){
+    int day = 0;
+    double stock = this->constants[STOCK];
+    while(stock > 0){
+        stock -= calculOrder(day++);
+    }
+    return day;
 }

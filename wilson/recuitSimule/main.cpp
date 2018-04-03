@@ -42,7 +42,7 @@ double recuit(Evaluateur* eva, vector<Variable>& variables){
     double DiffMin = -1;
     int i = 0, j = 0;
     double Diff = 0;
-    double temp = getFirstTemp(10000,0.6);
+    double temp = getFirstTemp(10000,0.6);//20000
     int indice = 0;
 
     //250000
@@ -123,7 +123,8 @@ int verifThread(){
     }
     return i;
 }
-/*
+
+
 int main() {
 
 
@@ -135,12 +136,24 @@ int main() {
 //    vector<vector<double>> content;
     //vector<vector<Variable>> retour;
     csv.read(content);
+    content[158][ORDER_COST] = 1000;
+    content[158][PURCHASE_PRICE] = 5;
+    content[158][OWNERSHIP_RATE] = 0.25;
 
+
+
+    Evaluateur* eva = new Evaluateur(content[158]);
+    eva->setMedium();
+    cout << "Total commande dans l'année : " << eva->calcCommandeWilson() << endl;
+    cout << "Jours commande dans l'année : " << eva->calcPeriodiciteWilson() << endl;
+/*
+    //Initialisation tableau pour recuit
     vector<Variable> tmp;
     for(unsigned int i = 0; i<content.size();i++){
         retour.push_back(tmp);
         bestDiffs.push_back(0.0);
     }
+
 //    for(int i = 0 ; i < content.size() ; i++){
 //        for (int j = 0 ; j < content[i].size() ; j++){
 //            cout << content[i][j] << " ";
@@ -202,13 +215,9 @@ int main() {
         if (execute[i]){
           threads[i].join();
         }
-
     }
 
-    // TODO func qui recupere les fichier des threads pour les reecrire dans un seul fichier
-
-
     csv.write(retour,"Recuit");
-
+*/
     return 0;
-}*/
+}
