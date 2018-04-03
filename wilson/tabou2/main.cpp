@@ -2,10 +2,13 @@
 #include "../lib/csv.hpp"
 #include "../evaluateur/evaluateur.hpp"
 #include <thread>
+#include <vector>
 
 using namespace std;
 
-int maxSizeList = 10;
+int maxSizeList = 1000;
+vector<vector<Variable>> results;
+vector<double> resultsValue;
 
 int isSame(vector<Variable> a, vector<Variable> b)
 {
@@ -44,7 +47,7 @@ void addInList(vector<vector<Variable>> list, int index, vector<Variable> toAdd)
     }
 }
 
-void tabou(Evaluateur env, vector<Variable> variables, int id, vector<vector<Variable>> results, vector<double> resultsValue)
+void tabou(Evaluateur env, vector<Variable> variables, int id)
 {
     int turnWithoutAmelioration = 0;
 
@@ -57,7 +60,7 @@ void tabou(Evaluateur env, vector<Variable> variables, int id, vector<vector<Var
     vector<Variable> best = variables;
     vector<Variable> current = variables;
 
-    while (turnWithoutAmelioration < 100)
+    while (turnWithoutAmelioration < 200)
     {
 
         double bestVoisinValue = 999999999;
@@ -103,18 +106,17 @@ int main(int argc, const char *argv[])
     CSVReader csv("./sample01-20productsEN.csv");
     vector<vector<double>> content;
     csv.read(content);
+
     double total = 0;
 
-    for (vector<double> cont : content)
+    for (int j = 0; j < content.size(); j++)
     {
-        vector<vector<Variable>> results;
-        vector<double> resultsValue;
-        cout << cont[3] << endl;
-        double averageDemande = (cont[2] + (cont[2] + cont[3] * 261)) / 2;
+        cout << "Ligne " << j+1 << endl;
+        double averageDemande = (content[j][3]) + (content[j][3] + content[j][2] * 261) / 2;
         double minCommande = averageDemande / 2;
-        double maxCommande = averageDemande * cont[DELAY_LIVRAISON] * 1.5;
+        double maxCommande = averageDemande * content[j][DELAY_LIVRAISON] * 1.5;
 
-        Evaluateur env = Evaluateur(cont);
+        Evaluateur env = Evaluateur(content[j]);
         env.setMedium();
 
         thread threads[2];
@@ -139,7 +141,7 @@ int main(int argc, const char *argv[])
             }
 
             // Start for Method 1
-            threads[i] = thread(tabou, env, variables, i, results, resultsValue);
+            threads[i] = thread(tabou, env, variables, i);
         }
         for (int i = 0; i < 2; i++)
         {
@@ -147,14 +149,15 @@ int main(int argc, const char *argv[])
         }
         if (resultsValue[0] < resultsValue[1])
         {
-            cout << "Best Result " << resultsValue[0];
+            cout << "Best Result " << resultsValue[0] << endl;
             allSolutions.push_back(results[0]);
         }
         else
         {
-            cout << "Best Result " << resultsValue[1];
+            cout << "Best Result " << resultsValue[1] << endl;
             allSolutions.push_back(results[1]);
         }
+        resultsValue.clear();
     }
 
     csv.write(allSolutions, "tabou");
