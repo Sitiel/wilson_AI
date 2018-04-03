@@ -162,7 +162,7 @@ double Evaluateur::variation(){
 
 double Evaluateur::calculOrder(int day)
 {
-    double res = (this->constants[INITIAL_DEMANDE] + (day * this->constants[INCREASE])) * (dayToMonth[day] == constants[MONTH_SAISONALITY] ? 1 + constants[PERCENT_OF_SAISONALITY] : 1) + variation();
+    double res = ((this->constants[INITIAL_DEMANDE] + (day * this->constants[INCREASE]))+ variation()) * (dayToMonth[day] == constants[MONTH_SAISONALITY] ? 1 + constants[PERCENT_OF_SAISONALITY] : 1) ;
     return res;
 }
 
