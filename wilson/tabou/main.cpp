@@ -3,7 +3,7 @@
 #include "../evaluateur/evaluateur.hpp"
 #include <thread>
 
-#define SIZE_LTABOU 10000
+#define SIZE_LTABOU 10
 
 using namespace std;
 
@@ -31,6 +31,8 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
     int indexDiff = -1;
 
     int nbNotProgressing = 0;
+    
+    vector<double> data;
 
     while (nbNotProgressing < 100)
     {
@@ -39,7 +41,7 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
         j = 0;
         newCurrent = -1;
         
-        progression *= 0.999;
+        //progression *= 0.999;
 
         int stuckCount = 0;
         while (j < 10)
@@ -62,7 +64,7 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
             if (indexDiff == -1)
             {
                 r = (rand() % (variables.size()-1)) + 1;
-                variables[r].randomise(progression);
+                variables[r].randomise(0.2);
             }
             else
             {
@@ -125,6 +127,7 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
             ltabouCmp = 0;
 
         current = newCurrent;
+        data.push_back(current);
         if (current < best || best == -1)
         {
             best = current;
@@ -144,6 +147,11 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
             }
             progression = 1;
         }
+    }
+    
+    if(id == 0){
+        CSVReader c;
+        c.write(data);
     }
 
     cout << "My best (" << id << ") is " << best << endl;

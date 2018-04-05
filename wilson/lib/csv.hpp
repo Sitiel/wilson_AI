@@ -26,6 +26,7 @@ public:
     //void write(std::vector<std::vector<std::string>> &content, std::string name = "");
     void write(std::vector<std::vector<Variable>> &content, std::string meta,std::string name = "");
     void write(std::vector<std::pair<std::vector<Variable>, std::string>> &content, std::string name = "");
+    void write(std::vector<double> &content, std::string name = "");
 //    void write(std::vector<std::vector<int>> &content);
 
     void errorOpeningFile();

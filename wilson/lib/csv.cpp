@@ -207,6 +207,30 @@ void CSVReader::read(std::vector<std::vector<int>> &content) {
 //    csv.close();
 //}
 
+void CSVReader::write(std::vector<double> &content, std::string name){
+    ofstream csv;
+    if(!name.empty()){
+        csv.open(name,ofstream::app);
+    }else{
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        int sec = (int) tv.tv_sec;
+        int usec = (int) tv.tv_usec % 0x100000;
+        char newname[255];
+        sprintf(newname,"%08x%05x.csv", sec, usec);
+        csv.open(newname,ofstream::app);
+    }
+    
+    csv << "Value1;Value2\n";
+    csv.flush();
+    for(unsigned int i = 0; i <content.size();i++){
+        csv << content[i] << ";" << endl;
+        csv.flush();
+    }
+    
+    csv.close();
+}
+
 void CSVReader::write(std::vector<std::pair<std::vector<Variable>, std::string>> &content, std::string name){
     ofstream csv;
     if(!name.empty()){
