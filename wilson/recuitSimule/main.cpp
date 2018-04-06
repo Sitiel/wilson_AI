@@ -15,6 +15,7 @@ bool execute[nbThread];
 thread threads[nbThread];
 int maxIteration = 50000;
 int maxStagn = 500;
+bool maxIterationAug = false;
 double variationTemp = 0.999961;
 
 
@@ -57,9 +58,10 @@ double recuit(Evaluateur* eva, vector<Variable>& variables){
     double temp = -1;
     int indice = 0;
 
-    if(variables[0].value == 1){
+    if(variables[0].value == 1 && maxIterationAug==false){
         maxIteration = maxIteration*1.5;
         maxStagn = maxStagn*1.5;
+        maxIterationAug = true;
     }
 
     //Initialisation temperature
