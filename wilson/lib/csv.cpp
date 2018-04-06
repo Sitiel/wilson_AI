@@ -245,7 +245,7 @@ void CSVReader::write(std::vector<std::pair<std::vector<Variable>, std::string>>
         csv.open(newname,ofstream::app);
     }
     
-    csv << "Name;Method;Quantité Maximum;Pt Commande/Période;1er Commande;Metaheuristique\n";
+    csv << "Name;Method;Maximum/Quantité;Pt Controle/Periode;1er Commande;Metaheuristique\n";
     csv.flush();
     for(unsigned int i = 0; i <content.size();i++){
         if(i+1<10){
@@ -290,7 +290,7 @@ void CSVReader::write(vector<vector<Variable>> &content,string meta, string name
         csv.open(newname,ofstream::app);
     }
 
-    csv << "Name;Method;Quantité Maximum;Pt Commande/Période;1er Commande;Metaheuristique\n";
+    csv << "Name;Method;Maximum/Quantité;Pt Controle/Periode;1er Commande;Metaheuristique\n";
     csv.flush();
     for(unsigned int i = 0; i <content.size();i++){
         if(i+1<10){

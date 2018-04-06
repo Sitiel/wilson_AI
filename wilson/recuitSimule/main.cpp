@@ -13,6 +13,8 @@ vector<double> bestDiffs;
 //Tableau de booléen des threads
 bool execute[nbThread];
 thread threads[nbThread];
+double variationTemp = 0.999961;
+
 
 double getFirstTemp(double delta, double pourcentage){
     return (-delta/log(pourcentage));
@@ -32,8 +34,16 @@ double calculeTemperature(double temp){
     if(temp<=1){
         return 1;
     }
-    return temp*0.99999;
+    return temp*variationTemp;
 }
+
+double tempInit(Evaluateur* eva){
+    return getFirstTemp(eva->scoreWilson(),0.36)/10;
+}
+
+/*void initVariationTemp(double tempinit){
+    variationTemp = ((tempinit*0.99999)/20000);
+}*/
 
 double recuit(Evaluateur* eva, vector<Variable>& variables){
 
@@ -42,13 +52,22 @@ double recuit(Evaluateur* eva, vector<Variable>& variables){
     double DiffMin = -1;
     int i = 0, j = 0;
     double Diff = 0;
-    double temp = getFirstTemp(10000,0.6);//20000
+    double temp = -1;
     int indice = 0;
+    int maxIteration = 50000;
+    int maxStagn = 500;
+    if(variables[0].value == 1){
+        maxIteration = 75000;
+        maxStagn = 750;
+    }
+
+    //Initialisation temperature
+    temp = tempInit(eva);
+    //initVariationTemp(temp);
 
     //250000
-    while(i <= 250000 && j<50000 && DiffMin != 0){
+    while(i <= maxIteration && j<maxStagn){
         Diff = 0;
-        //$K$2*PUISSANCE(A2;$K$3)+$L$2*PUISSANCE(B2;$L$3)+$M$2*PUISSANCE(C2;$M$3)+$N$2*PUISSANCE(D2;$N$3)+$O$2*PUISSANCE(E2;$O$3)
         Diff = eva->evaluate(variables);
 
         if(Diff<DiffMin || DiffMin == -1){
@@ -56,17 +75,17 @@ double recuit(Evaluateur* eva, vector<Variable>& variables){
                 bestDiff = Diff;
                 vBest = variables;
                 //cout << bestDiff << " | Temperature : " << temp <<" | " << i<<endl;
+                j = 0;
             }
             DiffMin = Diff;
             //cout << bestDiff << " | " << DiffMin << " Temperature : " << temp <<" | " << i<<endl;
-            j = 0;
         }else{
             //Calcul du recuit
             double k = fRand(0,1);
             if(k<calculeRecuit(Diff-DiffMin,temp)){
                 DiffMin = Diff;
                 //cout << bestDiff << " | " << DiffMin << " Temperature : " << temp <<" | " << i<<endl;
-                j = 0;
+                //j = 0;
             }else{
                 variables[indice].revert();
             }
@@ -136,17 +155,15 @@ int main() {
 //    vector<vector<double>> content;
     //vector<vector<Variable>> retour;
     csv.read(content);
-    content[158][ORDER_COST] = 1000;
-    content[158][PURCHASE_PRICE] = 5;
-    content[158][OWNERSHIP_RATE] = 0.25;
 
+//    Evaluateur* eva = new Evaluateur(content[158]);
+//    eva->setMedium();
 
-
-    Evaluateur* eva = new Evaluateur(content[158]);
-    eva->setMedium();
-    cout << "Total commande dans l'année : " << eva->calcCommandeWilson() << endl;
-    cout << "Jours commande dans l'année : " << eva->calcPeriodiciteWilson() << endl;
-/*
+//    cout << "Replennishement : " << endl;
+//    cout << "Total commande dans l'année : " << eva->calcCommandeWilson() << endl;
+//    cout << "Jours commande dans l'année : " << eva->calcPeriodiciteWilson() << endl;
+//    cout << "Premier jours : " << eva->minDayBeforeRupture() << endl;
+//    cout << "Score wilson : " << eva->scoreWilson() <<endl;
     //Initialisation tableau pour recuit
     vector<Variable> tmp;
     for(unsigned int i = 0; i<content.size();i++){
@@ -154,27 +171,8 @@ int main() {
         bestDiffs.push_back(0.0);
     }
 
-//    for(int i = 0 ; i < content.size() ; i++){
-//        for (int j = 0 ; j < content[i].size() ; j++){
-//            cout << content[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
 
     srand(time(NULL));
-
-//    vector<Variable*> variables;
-//    for(int i = 0 ; i < 5 ; i++){
-//        variables.push_back(new Variable(-100, 100));
-//    }
-
-//    for(int i = 0 ; i < 5 ; i++){
-//        variables.push_back(new Variable(1, 10));
-//    }
-
-//    for (int j = 0 ; j < variables.size() ; j++){
-//        cout << variables[j]->value << ";";
-//    }
 
     //PointContrôle
     unsigned int i = 0;
@@ -185,21 +183,21 @@ int main() {
         if(indiceThread!=-1){
             i++;
             //cout <<" lancement de thread n: "<<i<<endl;
+            Evaluateur* eva = new Evaluateur(content[(i-1)%content.size()]);
+            eva->setAverage(10);
+
             vector<Variable> variables;
             if (i>content.size()){
                 variables.push_back(Variable(1, 1.9999));
-                for(int i = 0 ; i < 3 ; i++){
-                    variables.push_back(Variable(1, 100000));
-                }
+                variables.push_back(Variable(1, eva->calcCommandeWilson()));
+                variables.push_back(Variable(1, eva->calcPeriodiciteWilson()));
+                variables.push_back(Variable(1, eva->minDayBeforeRupture()));
             }else{
                 variables.push_back(Variable(0, 0.9999));
-                for(int i = 0 ; i < 2 ; i++){
-                    variables.push_back(Variable(1, 100000));
-                }
+                variables.push_back(Variable(1, eva->calcMaximumProd()));
+                variables.push_back(Variable(1, eva->calcPtControle()));
             }
 
-            Evaluateur* eva = new Evaluateur(content[(i-1)%content.size()]);
-            eva->setMedium();
             //On bloque la place
             execute[indiceThread] = true;
             threads[indiceThread] = thread(recuitThread, eva, variables, (i-1)%content.size(), indiceThread);
@@ -218,6 +216,6 @@ int main() {
     }
 
     csv.write(retour,"Recuit");
-*/
+
     return 0;
 }

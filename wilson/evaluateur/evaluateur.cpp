@@ -19,13 +19,6 @@ Evaluateur::Evaluateur(vector<double> &constants)
     averageModeValue = 1;
 }
 
-double Evaluateur::evaluate(std::vector<Variable *> &variables)
-{
-    double totalDelta = 0;
-
-    return totalDelta;
-}
-
 void Evaluateur::setAverage(int averageModeValue){
     riskMode = RISK_RANDOM;
     this->averageModeValue = averageModeValue;
@@ -226,7 +219,7 @@ double Evaluateur::prodAnnee(){
     for(int day = 0; day<262; day++){
         total+=calculOrder(day);
     }
-    return 20000;
+    return total;
 
 }
 
@@ -248,4 +241,38 @@ double Evaluateur::minDayBeforeRupture(){
         stock -= calculOrder(day++);
     }
     return day;
+}
+
+//Point de controle
+double Evaluateur::calcMaximumProd(){
+    return calcCommandeWilson()*5;
+}
+
+double Evaluateur::calcPtControle(){
+    return calcCommandeWilson()*3;
+}
+
+double Evaluateur::calcTemperature(){
+    return 0.0;
+}
+
+double Evaluateur::calcVariationTemp(){
+    return 0.0;
+}
+
+double Evaluateur::scoreWilson(){
+    //Variable 1 = Point de controle
+    //Variable 2 = Interval
+    //Variable 3 = Jour de début
+    vector<Variable> results;
+    results.push_back(Variable(1, 1.9999));//methode
+    results.push_back(Variable(1, 1.9999));//ptControle
+    results.push_back(Variable(1, 1.9999));//interval
+    results.push_back(Variable(1, 1.9999));//jrDebut
+
+    results[1].value = calcPtControle();
+    results[2].value = calcMaximumProd();
+    results[3].value = minDayBeforeRupture();
+
+    return evaluate(results);
 }

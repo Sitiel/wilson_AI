@@ -1,4 +1,4 @@
-Name;Method;Quantité Maximum;Pt Commande/Période;1er Commande;Metaheuristique
+Name;Method;Quantité/Maximum;Pt Controôe/Période;1er Commande;Metaheuristique
 A01;OrderPoint;10018;2628;;Recuit
 A02;OrderPoint;1630;1640;;Recuit
 A03;OrderPoint;12793;2375;;Recuit

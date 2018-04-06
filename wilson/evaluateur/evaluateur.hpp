@@ -36,8 +36,7 @@
 class Evaluateur {
 public:
     Evaluateur(std::vector<double> &constants);
-    
-    double evaluate(std::vector<Variable*>& variables);
+
     double evaluate(std::vector<Variable>& variables);
     
     void setRisky();
@@ -47,9 +46,18 @@ public:
     void setAverage(int averageModeValue = 100);
     
     double prodAnnee();
+    //Fonctions sur replenishment
     double calcCommandeWilson();
     double calcPeriodiciteWilson();
     double minDayBeforeRupture();
+    //Fonctions sur point de controle
+    double calcMaximumProd();
+    double calcPtControle();
+    double calcTemperature();
+    double calcVariationTemp();
+    double scoreWilson();
+    //Variations bornes
+    //
     double variation();
 
     double evaluatePointControle(std::vector<Variable>& variables, std::vector<double> state);
