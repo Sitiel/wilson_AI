@@ -13,6 +13,8 @@ vector<double> bestDiffs;
 //Tableau de booléen des threads
 bool execute[nbThread];
 thread threads[nbThread];
+int maxIteration = 50000;
+int maxStagn = 500;
 double variationTemp = 0.999961;
 
 
@@ -41,9 +43,9 @@ double tempInit(Evaluateur* eva){
     return getFirstTemp(eva->scoreWilson(),0.36)/10;
 }
 
-/*void initVariationTemp(double tempinit){
-    variationTemp = ((tempinit*0.99999)/20000);
-}*/
+void initVariationTemp(double tempinit){
+    variationTemp = abs(pow(temp,1/maxIteration)-2);
+}
 
 double recuit(Evaluateur* eva, vector<Variable>& variables){
 
@@ -54,16 +56,15 @@ double recuit(Evaluateur* eva, vector<Variable>& variables){
     double Diff = 0;
     double temp = -1;
     int indice = 0;
-    int maxIteration = 50000;
-    int maxStagn = 500;
+
     if(variables[0].value == 1){
-        maxIteration = 75000;
-        maxStagn = 750;
+        maxIteration = maxIteration*1.5;
+        maxStagn = maxStagn*1.5;
     }
 
     //Initialisation temperature
     temp = tempInit(eva);
-    //initVariationTemp(temp);
+    initVariationTemp(temp);
 
     //250000
     while(i <= maxIteration && j<maxStagn){
