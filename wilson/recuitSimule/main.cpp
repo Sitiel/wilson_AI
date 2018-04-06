@@ -44,7 +44,7 @@ double tempInit(Evaluateur* eva){
 }
 
 void initVariationTemp(double tempinit){
-    variationTemp = abs(pow(temp,1/maxIteration)-2);
+    variationTemp = abs(pow(tempinit,1/maxIteration)-2);
 }
 
 double recuit(Evaluateur* eva, vector<Variable>& variables){
