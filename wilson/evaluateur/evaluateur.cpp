@@ -231,7 +231,8 @@ double Evaluateur::calcCommandeWilson(){
 double Evaluateur::calcPeriodiciteWilson(){
     double N = prodAnnee();
     double nbCommandeAnnee = calcCommandeWilson();
-    return 261/(N/nbCommandeAnnee);
+    int retour = (261/(N/nbCommandeAnnee))+1;
+    return (double)retour;
 }
 
 double Evaluateur::minDayBeforeRupture(){

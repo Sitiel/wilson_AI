@@ -148,7 +148,7 @@ int main() {
 
 
     int indiceThread = 0;
-    CSVReader csv("../../sample02-160productsEN.csv");
+    CSVReader csv("../../sample01-20productsEN.csv");
     vector<vector<double>> content;
     //vector<double> content;
 //    CSVReader csv("FNL.csv");
@@ -156,7 +156,7 @@ int main() {
     //vector<vector<Variable>> retour;
     csv.read(content);
 
-//    Evaluateur* eva = new Evaluateur(content[158]);
+//    Evaluateur* eva = new Evaluateur(content[1]);
 //    eva->setMedium();
 
 //    cout << "Replennishement : " << endl;
