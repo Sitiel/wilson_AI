@@ -127,7 +127,7 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
             ltabouCmp = 0;
 
         current = newCurrent;
-        data.push_back(current);
+        //data.push_back(current);
         if (current < best || best == -1)
         {
             best = current;
@@ -149,10 +149,10 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
         }
     }
     
-    if(id == 0){
+    /*if(id == 0){
         CSVReader c;
         c.write(data);
-    }
+    }*/
 
     cout << "My best (" << id << ") is " << best << endl;
     solutions[id] = make_pair(best, bVariables);
@@ -165,7 +165,7 @@ double tabou(Evaluateur env, vector<Variable> variables, int core_id, int id = 0
 int main(int argc, const char *argv[])
 {
     srand(5);
-
+ 
     CSVReader csv("./sample02-160productsEN.csv");
     vector<vector<double>> content;
     csv.read(content);
@@ -183,7 +183,7 @@ int main(int argc, const char *argv[])
         csv.read(starter);
     }
     
-    for (int t = 0 ; t < content.size()*2 ;)
+    for (int t = 0 ; t < 60*2 ;)
     {
         int freeCore = -1;
         for(int j = 0 ; j < 8 ; j++){
